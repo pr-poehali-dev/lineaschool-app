@@ -1,10 +1,12 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import Icon from "@/components/ui/icon";
 import { cn } from "@/lib/utils";
+import LoginForm from "@/components/LoginForm";
+import AdminPanel from "@/components/AdminPanel";
 
 interface Assignment {
   id: string;
@@ -28,11 +30,34 @@ const mockData: Assignment[] = [
 ];
 
 const Index = () => {
+  const [user, setUser] = useState<{ id: string; login: string; fullName: string; role: string } | null>(null);
   const [assignments, setAssignments] = useState<Assignment[]>(mockData);
   const [selectedDate, setSelectedDate] = useState<Date>(new Date(2025, 9, 9));
-  const [activeTab, setActiveTab] = useState<"calendar" | "homework" | "profile">("calendar");
+  const [activeTab, setActiveTab] = useState<"calendar" | "homework" | "profile" | "admin">("calendar");
   const [selectedHomework, setSelectedHomework] = useState<Assignment | null>(null);
   const [homeworkAnswer, setHomeworkAnswer] = useState("");
+
+  useEffect(() => {
+    const savedUser = localStorage.getItem("lineaschool_current_user");
+    if (savedUser) {
+      setUser(JSON.parse(savedUser));
+    }
+  }, []);
+
+  const handleLogin = (userData: { id: string; login: string; fullName: string; role: string }) => {
+    setUser(userData);
+    localStorage.setItem("lineaschool_current_user", JSON.stringify(userData));
+  };
+
+  const handleLogout = () => {
+    setUser(null);
+    localStorage.removeItem("lineaschool_current_user");
+    setActiveTab("calendar");
+  };
+
+  if (!user) {
+    return <LoginForm onLogin={handleLogin} />;
+  }
 
   const getDaysInMonth = (date: Date) => {
     const year = date.getFullYear();
@@ -87,8 +112,14 @@ const Index = () => {
                   <p className="text-sm text-muted-foreground">Личный кабинет ученика</p>
                 </div>
               </div>
-              <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-                <Icon name="User" size={20} className="text-primary" />
+              <div className="flex items-center gap-3">
+                <div className="text-right">
+                  <p className="text-sm font-medium text-secondary">{user.fullName}</p>
+                  <p className="text-xs text-muted-foreground">{user.role === "admin" ? "Администратор" : "Ученик"}</p>
+                </div>
+                <Button variant="ghost" size="icon" onClick={handleLogout}>
+                  <Icon name="LogOut" size={20} className="text-muted-foreground" />
+                </Button>
               </div>
             </div>
           </div>
@@ -359,6 +390,10 @@ const Index = () => {
           </div>
         )}
 
+        {activeTab === "admin" && user.role === "admin" && (
+          <AdminPanel />
+        )}
+
         <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg">
           <div className="max-w-md mx-auto px-6 py-4">
             <div className="flex items-center justify-around">
@@ -382,6 +417,18 @@ const Index = () => {
                 <Icon name="BookOpen" size={24} />
                 <span className="text-xs font-medium">Домашние задания</span>
               </button>
+              {user.role === "admin" && (
+                <button
+                  onClick={() => setActiveTab("admin")}
+                  className={cn(
+                    "flex flex-col items-center gap-1 transition-colors",
+                    activeTab === "admin" ? "text-primary" : "text-gray-400"
+                  )}
+                >
+                  <Icon name="Settings" size={24} />
+                  <span className="text-xs font-medium">Управление</span>
+                </button>
+              )}
               <button
                 onClick={() => setActiveTab("profile")}
                 className={cn(
