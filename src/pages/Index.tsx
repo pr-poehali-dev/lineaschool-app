@@ -1,12 +1,12 @@
 import { useState, useEffect } from "react";
 import LoginForm from "@/components/LoginForm";
-import AdminPanel from "@/components/AdminPanel";
 import AdminDashboard from "@/components/AdminDashboard";
+import TeacherDashboard from "@/components/TeacherDashboard";
 import CalendarView from "@/components/CalendarView";
 import HomeworkView from "@/components/HomeworkView";
 import AppHeader from "@/components/AppHeader";
 import AppNavigation from "@/components/AppNavigation";
-import { Assignment, Student, User } from "@/components/types";
+import { Assignment, Student, Teacher, User } from "@/components/types";
 
 const Index = () => {
   const [user, setUser] = useState<User | null>(null);
@@ -27,7 +27,8 @@ const Index = () => {
     if (!usersData) {
       const initialUsers = [
         { id: "1", login: "admin", password: "admin123", fullName: "Администратор", role: "admin" },
-        { id: "2", login: "student1", password: "pass123", fullName: "Иванов Иван", role: "student" }
+        { id: "2", login: "teacher1", password: "pass123", fullName: "Петров Петр", role: "teacher" },
+        { id: "3", login: "student1", password: "pass123", fullName: "Иванов Иван", role: "student", teacherId: "2" }
       ];
       localStorage.setItem("lineaschool_users", JSON.stringify(initialUsers));
     }
@@ -64,6 +65,7 @@ const Index = () => {
     setUser(null);
     localStorage.removeItem("lineaschool_current_user");
     setActiveTab("calendar");
+    setSelectedStudent(null);
   };
 
   const getStudents = (): Student[] => {
@@ -71,6 +73,47 @@ const Index = () => {
     if (!usersData) return [];
     const users = JSON.parse(usersData);
     return users.filter((u: Student) => u.role === "student");
+  };
+
+  const getTeachers = (): Teacher[] => {
+    const usersData = localStorage.getItem("lineaschool_users");
+    if (!usersData) return [];
+    const users = JSON.parse(usersData);
+    return users.filter((u: Teacher) => u.role === "teacher");
+  };
+
+  const getMyStudents = (): Student[] => {
+    if (!user || user.role !== "teacher") return [];
+    const usersData = localStorage.getItem("lineaschool_users");
+    if (!usersData) return [];
+    const users = JSON.parse(usersData);
+    return users.filter((u: Student) => u.role === "student" && u.teacherId === user.id);
+  };
+
+  const handleAddStudent = (student: Student) => {
+    const usersData = localStorage.getItem("lineaschool_users");
+    if (!usersData) return;
+    const users = JSON.parse(usersData);
+    users.push(student);
+    localStorage.setItem("lineaschool_users", JSON.stringify(users));
+    setActiveTab("calendar");
+  };
+
+  const handleAddTeacher = (teacher: Teacher) => {
+    const usersData = localStorage.getItem("lineaschool_users");
+    if (!usersData) return;
+    const users = JSON.parse(usersData);
+    users.push(teacher);
+    localStorage.setItem("lineaschool_users", JSON.stringify(users));
+    setActiveTab("calendar");
+  };
+
+  const handleAddAssignment = (assignment: Assignment) => {
+    const assignmentsData = localStorage.getItem("lineaschool_assignments");
+    const allAssignments = assignmentsData ? JSON.parse(assignmentsData) : [];
+    allAssignments.push(assignment);
+    localStorage.setItem("lineaschool_assignments", JSON.stringify(allAssignments));
+    setActiveTab("calendar");
   };
 
   const handleComplete = (id: string) => {
@@ -129,17 +172,38 @@ const Index = () => {
     return <LoginForm onLogin={handleLogin} />;
   }
 
-  if (user?.role === "admin" && !selectedStudent) {
+  if (user.role === "admin" && !selectedStudent) {
     const students = getStudents();
+    const teachers = getTeachers();
     
     return (
       <AdminDashboard
+        user={user}
         students={students}
+        teachers={teachers}
         onSelectStudent={setSelectedStudent}
-        onAddStudent={() => setActiveTab("admin")}
         onLogout={handleLogout}
         activeTab={activeTab}
         setActiveTab={setActiveTab}
+        onAddStudent={handleAddStudent}
+        onAddTeacher={handleAddTeacher}
+        onAddAssignment={handleAddAssignment}
+      />
+    );
+  }
+
+  if (user.role === "teacher" && !selectedStudent) {
+    const myStudents = getMyStudents();
+    
+    return (
+      <TeacherDashboard
+        user={user}
+        students={myStudents}
+        onSelectStudent={setSelectedStudent}
+        onLogout={handleLogout}
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+        onAddAssignment={handleAddAssignment}
       />
     );
   }
@@ -175,10 +239,6 @@ const Index = () => {
             onSubmitHomework={handleSubmitHomework}
             onCloseHomework={handleCloseHomework}
           />
-        )}
-
-        {activeTab === "admin" && user.role === "admin" && (
-          <AdminPanel />
         )}
 
         <AppNavigation

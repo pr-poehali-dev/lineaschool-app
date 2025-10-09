@@ -9,6 +9,7 @@ export interface Assignment {
   dueTime?: string;
   description?: string;
   answer?: string;
+  createdBy: string;
 }
 
 export interface Student {
@@ -16,12 +17,22 @@ export interface Student {
   login: string;
   password: string;
   fullName: string;
-  role: string;
+  role: "student";
+  teacherId?: string;
+}
+
+export interface Teacher {
+  id: string;
+  login: string;
+  password: string;
+  fullName: string;
+  role: "teacher";
 }
 
 export interface User {
   id: string;
   login: string;
   fullName: string;
-  role: string;
+  role: "admin" | "teacher" | "student";
+  teacherId?: string;
 }
