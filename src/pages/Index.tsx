@@ -78,15 +78,18 @@ const Index = () => {
         <div className="bg-white shadow-sm border-b border-gray-100">
           <div className="px-6 pt-8 pb-6">
             <div className="flex items-center justify-between mb-6">
-              <div>
-                <h1 className="text-2xl font-bold text-gradient">LineaSchool</h1>
-                <p className="text-sm text-muted-foreground mt-1">Личный кабинет ученика</p>
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 bg-green-500 rounded-2xl flex items-center justify-center shrink-0">
+                  <Icon name="BookOpen" size={28} className="text-white" />
+                </div>
+                <div>
+                  <h1 className="text-2xl font-bold text-green-600">LineaSchool</h1>
+                  <p className="text-sm text-muted-foreground">Личный кабинет ученика</p>
+                </div>
               </div>
-              <img 
-                src="https://cdn.poehali.dev/files/81420758-6ed0-43fe-b7e7-c6317caea682.png" 
-                alt="LineaSchool" 
-                className="w-12 h-12 rounded-full object-cover"
-              />
+              <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                <Icon name="User" size={20} className="text-primary" />
+              </div>
             </div>
           </div>
         </div>
