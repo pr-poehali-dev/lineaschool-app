@@ -14,21 +14,25 @@ interface Assignment {
   type: "lesson" | "homework";
   completed?: boolean;
   dueTime?: string;
+  description?: string;
+  answer?: string;
 }
 
 const mockData: Assignment[] = [
   { id: "1", title: "Математика: Уравнения", subject: "Математика", date: new Date(2025, 9, 7), type: "lesson", dueTime: "10:00" },
-  { id: "2", title: "Домашнее задание по математике", subject: "Математика", date: new Date(2025, 9, 8), type: "homework", completed: false },
+  { id: "2", title: "Решить уравнения", subject: "Математика", date: new Date(2025, 9, 8), type: "homework", completed: false, description: "Решите уравнения из учебника: стр. 45, №5-10" },
   { id: "3", title: "Русский язык: Синтаксис", subject: "Русский язык", date: new Date(2025, 9, 9), type: "lesson", dueTime: "12:00" },
-  { id: "4", title: "Сочинение по литературе", subject: "Литература", date: new Date(2025, 9, 10), type: "homework", completed: false },
+  { id: "4", title: "Сочинение по литературе", subject: "Литература", date: new Date(2025, 9, 10), type: "homework", completed: false, description: "Напишите сочинение на тему 'Образ главного героя'" },
   { id: "5", title: "Физика: Механика", subject: "Физика", date: new Date(2025, 9, 11), type: "lesson", dueTime: "14:00" },
-  { id: "6", title: "Решить задачи по физике", subject: "Физика", date: new Date(2025, 9, 12), type: "homework", completed: false },
+  { id: "6", title: "Задачи по физике", subject: "Физика", date: new Date(2025, 9, 12), type: "homework", completed: false, description: "Решите задачи на законы Ньютона: №12, 15, 18" },
 ];
 
 const Index = () => {
   const [assignments, setAssignments] = useState<Assignment[]>(mockData);
   const [selectedDate, setSelectedDate] = useState<Date>(new Date(2025, 9, 9));
   const [activeTab, setActiveTab] = useState<"calendar" | "homework" | "profile">("calendar");
+  const [selectedHomework, setSelectedHomework] = useState<Assignment | null>(null);
+  const [homeworkAnswer, setHomeworkAnswer] = useState("");
 
   const getDaysInMonth = (date: Date) => {
     const year = date.getFullYear();
@@ -58,6 +62,14 @@ const Index = () => {
     ));
   };
 
+  const handleSubmitHomework = (id: string) => {
+    setAssignments(assignments.map((a) => 
+      a.id === id ? { ...a, completed: true, answer: homeworkAnswer } : a
+    ));
+    setSelectedHomework(null);
+    setHomeworkAnswer("");
+  };
+
   const todayAssignments = getAssignmentsForDate(selectedDate.getDate());
 
   return (
@@ -70,9 +82,11 @@ const Index = () => {
                 <h1 className="text-2xl font-bold text-gradient">LineaSchool</h1>
                 <p className="text-sm text-muted-foreground mt-1">Личный кабинет ученика</p>
               </div>
-              <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-                <Icon name="User" size={24} className="text-primary" />
-              </div>
+              <img 
+                src="https://cdn.poehali.dev/files/81420758-6ed0-43fe-b7e7-c6317caea682.png" 
+                alt="LineaSchool" 
+                className="w-12 h-12 rounded-full object-cover"
+              />
             </div>
           </div>
         </div>
@@ -201,7 +215,14 @@ const Index = () => {
                           )}
                         </div>
                         {assignment.type === "homework" && !assignment.completed && (
-                          <Button className="w-full mt-4" size="sm">
+                          <Button 
+                            className="w-full mt-4" 
+                            size="sm"
+                            onClick={() => {
+                              setSelectedHomework(assignment);
+                              setActiveTab("homework");
+                            }}
+                          >
                             Выполнить задание
                           </Button>
                         )}
@@ -211,6 +232,127 @@ const Index = () => {
                 ))
               )}
             </div>
+          </div>
+        )}
+
+        {activeTab === "homework" && (
+          <div className="p-6 space-y-6">
+            {selectedHomework ? (
+              <Card className="p-6 shadow-lg border-0 bg-white">
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-xl font-semibold text-secondary">Выполнение задания</h2>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => {
+                      setSelectedHomework(null);
+                      setHomeworkAnswer("");
+                    }}
+                  >
+                    <Icon name="X" size={20} />
+                  </Button>
+                </div>
+
+                <div className="space-y-4">
+                  <div>
+                    <h3 className="font-semibold text-lg text-secondary mb-2">{selectedHomework.title}</h3>
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground mb-4">
+                      <Icon name="BookOpen" size={16} />
+                      <span>{selectedHomework.subject}</span>
+                    </div>
+                    <div className="bg-muted/50 rounded-lg p-4 mb-6">
+                      <p className="text-sm text-foreground">{selectedHomework.description}</p>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-secondary mb-2">
+                      Ваш ответ
+                    </label>
+                    <textarea
+                      value={homeworkAnswer}
+                      onChange={(e) => setHomeworkAnswer(e.target.value)}
+                      placeholder="Введите ответ на задание..."
+                      className="w-full min-h-[200px] p-4 border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring resize-none"
+                    />
+                  </div>
+
+                  <Button
+                    className="w-full"
+                    size="lg"
+                    onClick={() => handleSubmitHomework(selectedHomework.id)}
+                    disabled={!homeworkAnswer.trim()}
+                  >
+                    <Icon name="Send" size={18} className="mr-2" />
+                    Отправить на проверку
+                  </Button>
+                </div>
+              </Card>
+            ) : (
+              <>
+                <h3 className="text-lg font-semibold text-secondary px-2">
+                  Все домашние задания
+                </h3>
+                <div className="space-y-4">
+                  {assignments
+                    .filter((a) => a.type === "homework")
+                    .map((assignment) => (
+                      <Card
+                        key={assignment.id}
+                        className="p-5 shadow-md border-0 bg-white hover:shadow-lg transition-all"
+                      >
+                        <div className="flex items-start gap-4">
+                          <Checkbox
+                            checked={assignment.completed}
+                            onCheckedChange={() => handleComplete(assignment.id)}
+                            className="mt-1"
+                          />
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-start justify-between gap-2 mb-2">
+                              <h4
+                                className={cn(
+                                  "font-semibold text-secondary",
+                                  assignment.completed && "line-through text-muted-foreground"
+                                )}
+                              >
+                                {assignment.title}
+                              </h4>
+                              {assignment.completed && (
+                                <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200 shrink-0">
+                                  <Icon name="Check" size={12} className="mr-1" />
+                                  Выполнено
+                                </Badge>
+                              )}
+                            </div>
+                            <div className="flex items-center gap-3 text-sm text-muted-foreground mb-3">
+                              <div className="flex items-center gap-1">
+                                <Icon name="BookOpen" size={16} />
+                                <span>{assignment.subject}</span>
+                              </div>
+                              <div className="flex items-center gap-1">
+                                <Icon name="Calendar" size={16} />
+                                <span>
+                                  {assignment.date.getDate()}{" "}
+                                  {monthNames[assignment.date.getMonth()].toLowerCase()}
+                                </span>
+                              </div>
+                            </div>
+                            {!assignment.completed && (
+                              <Button
+                                className="w-full mt-2"
+                                size="sm"
+                                onClick={() => setSelectedHomework(assignment)}
+                              >
+                                Выполнить задание
+                              </Button>
+                            )}
+                          </div>
+                        </div>
+                      </Card>
+                    ))}
+                </div>
+              </>
+            )}
           </div>
         )}
 
