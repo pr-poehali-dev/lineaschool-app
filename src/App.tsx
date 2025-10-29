@@ -11,6 +11,7 @@ import StudentLogin from "./pages/StudentLogin";
 import StudentCabinet from "./pages/StudentCabinet";
 import TeacherLogin from "./pages/TeacherLogin";
 import AdminLogin from "./pages/AdminLogin";
+import AdminSync from "./pages/AdminSync";
 
 const queryClient = new QueryClient();
 
@@ -25,6 +26,7 @@ const App = () => (
           <Route path="/student-login" element={<StudentLogin />} />
           <Route path="/teacher-login" element={<TeacherLogin />} />
           <Route path="/admin-login" element={<AdminLogin />} />
+          <Route path="/admin/sync" element={<AdminSync />} />
           <Route path="/cabinet" element={<StudentCabinet />} />
           <Route path="/dashboard" element={<Index />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

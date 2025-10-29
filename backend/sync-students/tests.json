@@ -1,0 +1,17 @@
+{
+  "tests": [
+    {
+      "name": "Sync students from AlfaCRM",
+      "method": "POST",
+      "path": "/",
+      "expectedStatus": 200,
+      "expectedBody": {
+        "success": "boolean",
+        "synced": "number",
+        "skipped": "number",
+        "total_students": "number"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}
