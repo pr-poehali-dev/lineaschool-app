@@ -91,6 +91,7 @@ const CalendarView = ({
             const notCompletedHomework = dayAssignments.find((a) => a.type === "homework" && a.status === "not_completed");
             const attendedLesson = dayAssignments.find((a) => a.type === "lesson" && a.status === "attended");
             const completedHomework = dayAssignments.find((a) => a.type === "homework" && a.status === "completed");
+            const completedLateHomework = dayAssignments.find((a) => a.type === "homework" && a.status === "completed_late");
             const scheduledLesson = dayAssignments.find((a) => a.type === "lesson" && a.status === "scheduled");
             const scheduledHomework = dayAssignments.find((a) => a.type === "homework" && a.status === "scheduled");
             
@@ -114,6 +115,12 @@ const CalendarView = ({
                 <div className="w-4 h-4 flex items-center justify-center relative" title="Посещенный урок">
                   <div className="absolute inset-0 border border-dashed border-green-600 rounded-full" />
                   <Icon name="Check" size={13} className="text-green-600 relative z-10" strokeWidth={3} />
+                </div>
+              );
+            } else if (completedLateHomework) {
+              markerElement = (
+                <div className="w-4 h-4 flex items-center justify-center" title="ДЗ выполнено с опозданием">
+                  <Icon name="Check" size={13} className="text-yellow-500" strokeWidth={3} />
                 </div>
               );
             } else if (completedHomework) {

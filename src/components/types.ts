@@ -10,7 +10,7 @@ export interface Assignment {
   description?: string;
   answer?: string;
   createdBy: string;
-  status?: "scheduled" | "attended" | "missed" | "completed" | "not_completed";
+  status?: "scheduled" | "attended" | "missed" | "completed" | "completed_late" | "not_completed";
 }
 
 export interface Student {
