@@ -32,9 +32,10 @@ const StudentLogin = () => {
       
       const normalizedInput = normalizePhone(phone);
       
-      const student = data.students?.find(
-        (s: any) => normalizePhone(s.phone || '') === normalizedInput
-      );
+      const student = data.students?.find((s: any) => {
+        const studentPhones = Array.isArray(s.phone) ? s.phone : [s.phone];
+        return studentPhones.some((p: string) => normalizePhone(p || '') === normalizedInput);
+      });
 
       if (student) {
         localStorage.setItem("studentId", student.id);

@@ -87,7 +87,9 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         errors = []
         
         for student in students:
-            phone = normalize_phone(student.get('phone', ''))
+            phone_data = student.get('phone', [])
+            phone_list = phone_data if isinstance(phone_data, list) else [phone_data]
+            phone = normalize_phone(phone_list[0] if phone_list else '')
             name = student.get('name', '').replace("'", "''")
             student_id = str(student.get('id', '')).replace("'", "''")
             
