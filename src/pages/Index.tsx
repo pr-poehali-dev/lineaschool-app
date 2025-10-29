@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import LoginForm from "@/components/LoginForm";
 import AdminDashboard from "@/components/AdminDashboard";
 import TeacherDashboard from "@/components/TeacherDashboard";
@@ -6,9 +7,12 @@ import CalendarView from "@/components/CalendarView";
 import HomeworkView from "@/components/HomeworkView";
 import AppHeader from "@/components/AppHeader";
 import AppNavigation from "@/components/AppNavigation";
+import { Button } from "@/components/ui/button";
+import Icon from "@/components/ui/icon";
 import { Assignment, Student, Teacher, User } from "@/components/types";
 
 const Index = () => {
+  const navigate = useNavigate();
   const [user, setUser] = useState<User | null>(null);
   const [assignments, setAssignments] = useState<Assignment[]>([]);
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
@@ -233,7 +237,23 @@ const Index = () => {
   };
 
   if (!user) {
-    return <LoginForm onLogin={handleLogin} />;
+    return (
+      <div className="min-h-screen flex flex-col">
+        <div className="flex-1">
+          <LoginForm onLogin={handleLogin} />
+        </div>
+        <div className="p-4 text-center border-t">
+          <Button
+            variant="outline"
+            onClick={() => navigate("/login")}
+            className="gap-2"
+          >
+            <Icon name="GraduationCap" size={18} />
+            Вход для учеников
+          </Button>
+        </div>
+      </div>
+    );
   }
 
   if (user.role === "admin" && !selectedStudent) {
