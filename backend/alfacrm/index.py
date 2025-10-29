@@ -138,8 +138,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             
             request_data = json.dumps({
                 'branch_id': int(branch_id),
-                'page': 1,
-                'count': 50
+                'page': 0,
+                'count': 100
             }).encode('utf-8')
             
             print(f'Requesting students from: {url}')
