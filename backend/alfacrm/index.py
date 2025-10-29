@@ -10,6 +10,24 @@ from typing import Dict, Any, Optional
 from urllib.request import Request, urlopen
 from urllib.error import HTTPError, URLError
 
+def get_auth_token(domain: str, email: str, api_key: str) -> str:
+    '''
+    Authenticate with AlfaCRM and get session token
+    '''
+    url = f'https://{domain}/v2api/auth/login'
+    headers = {'Content-Type': 'application/json'}
+    
+    auth_data = json.dumps({
+        'email': email,
+        'api_key': api_key
+    }).encode('utf-8')
+    
+    req = Request(url, data=auth_data, headers=headers, method='POST')
+    with urlopen(req, timeout=10) as response:
+        data = json.loads(response.read().decode('utf-8'))
+    
+    return data.get('token', '')
+
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     method: str = event.get('httpMethod', 'GET')
     
@@ -40,8 +58,9 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     api_key: Optional[str] = os.environ.get('ALFACRM_API_KEY')
     branch_id: Optional[str] = os.environ.get('ALFACRM_BRANCH_ID')
     domain: Optional[str] = os.environ.get('ALFACRM_DOMAIN')
+    email: Optional[str] = os.environ.get('ALFACRM_EMAIL')
     
-    if not api_key or not branch_id or not domain:
+    if not api_key or not branch_id or not domain or not email:
         return {
             'statusCode': 500,
             'headers': {
@@ -50,7 +69,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             },
             'body': json.dumps({
                 'error': 'Missing AlfaCRM credentials',
-                'details': 'ALFACRM_API_KEY, ALFACRM_BRANCH_ID or ALFACRM_DOMAIN not configured'
+                'details': 'ALFACRM_API_KEY, ALFACRM_BRANCH_ID, ALFACRM_DOMAIN or ALFACRM_EMAIL not configured'
             })
         }
     
@@ -61,11 +80,27 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     base_url = f'https://{domain}/v2api'
     
     try:
+        # Get authentication token first
+        auth_token = get_auth_token(domain, email, api_key)
+        
+        if not auth_token:
+            return {
+                'statusCode': 401,
+                'headers': {
+                    'Content-Type': 'application/json',
+                    'Access-Control-Allow-Origin': '*'
+                },
+                'body': json.dumps({
+                    'error': 'Authentication failed',
+                    'details': 'Could not obtain auth token from AlfaCRM'
+                })
+            }
+        
         if entity_type == 'test':
             # Test connection with simple customer list request
             url = f'{base_url}/customer/index'
             headers = {
-                'X-ALFACRM-TOKEN': api_key,
+                'X-ALFACRM-TOKEN': auth_token,
                 'Content-Type': 'application/json'
             }
             
@@ -97,7 +132,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             # Fetch students list
             url = f'{base_url}/customer/index'
             headers = {
-                'X-ALFACRM-TOKEN': api_key,
+                'X-ALFACRM-TOKEN': auth_token,
                 'Content-Type': 'application/json'
             }
             
@@ -128,7 +163,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             # Fetch teachers list
             url = f'{base_url}/teacher/index'
             headers = {
-                'X-ALFACRM-TOKEN': api_key,
+                'X-ALFACRM-TOKEN': auth_token,
                 'Content-Type': 'application/json'
             }
             
@@ -157,7 +192,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             # Fetch lessons list
             url = f'{base_url}/lesson/index'
             headers = {
-                'X-ALFACRM-TOKEN': api_key,
+                'X-ALFACRM-TOKEN': auth_token,
                 'Content-Type': 'application/json'
             }
             
