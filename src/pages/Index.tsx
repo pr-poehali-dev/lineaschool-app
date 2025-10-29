@@ -32,6 +32,25 @@ const Index = () => {
       ];
       localStorage.setItem("lineaschool_users", JSON.stringify(initialUsers));
     }
+    
+    const assignmentsData = localStorage.getItem("lineaschool_assignments");
+    if (!assignmentsData) {
+      const initialAssignments = [
+        { id: "1", studentId: "3", title: "Урок английского", subject: "Английский", date: new Date(2025, 9, 1).toISOString(), type: "lesson", status: "scheduled", dueTime: "10:00", createdBy: "2" },
+        { id: "2", studentId: "3", title: "Домашнее задание", subject: "Английский", date: new Date(2025, 9, 1).toISOString(), type: "homework", status: "not_completed", createdBy: "2" },
+        { id: "3", studentId: "3", title: "Урок английского", subject: "Английский", date: new Date(2025, 9, 2).toISOString(), type: "lesson", status: "attended", dueTime: "10:00", createdBy: "2" },
+        { id: "4", studentId: "3", title: "Урок английского", subject: "Английский", date: new Date(2025, 9, 3).toISOString(), type: "lesson", status: "missed", dueTime: "10:00", createdBy: "2" },
+        { id: "5", studentId: "3", title: "Домашнее задание", subject: "Английский", date: new Date(2025, 9, 4).toISOString(), type: "homework", status: "completed", completed: true, createdBy: "2" },
+        { id: "6", studentId: "3", title: "Домашнее задание", subject: "Английский", date: new Date(2025, 9, 5).toISOString(), type: "homework", status: "completed", completed: true, createdBy: "2" },
+        { id: "7", studentId: "3", title: "Домашнее задание", subject: "Английский", date: new Date(2025, 9, 6).toISOString(), type: "homework", status: "not_completed", createdBy: "2" },
+        { id: "8", studentId: "3", title: "Урок английского", subject: "Английский", date: new Date(2025, 9, 7).toISOString(), type: "lesson", status: "attended", dueTime: "10:00", createdBy: "2" },
+        { id: "9", studentId: "3", title: "Домашнее задание", subject: "Английский", date: new Date(2025, 9, 8).toISOString(), type: "homework", status: "completed", completed: true, createdBy: "2" },
+        { id: "10", studentId: "3", title: "Урок английского", subject: "Английский", date: new Date(2025, 9, 9).toISOString(), type: "lesson", status: "scheduled", dueTime: "10:00", createdBy: "2" },
+        { id: "11", studentId: "3", title: "Урок английского", subject: "Английский", date: new Date(2025, 9, 10).toISOString(), type: "lesson", status: "scheduled", dueTime: "10:00", createdBy: "2" },
+        { id: "12", studentId: "3", title: "Домашнее задание", subject: "Английский", date: new Date(2025, 9, 11).toISOString(), type: "homework", status: "scheduled", createdBy: "2" }
+      ];
+      localStorage.setItem("lineaschool_assignments", JSON.stringify(initialAssignments));
+    }
   }, []);
   
   useEffect(() => {
@@ -135,7 +154,7 @@ const Index = () => {
 
   const handleSubmitHomework = (id: string) => {
     const updatedAssignments = assignments.map((a) => 
-      a.id === id ? { ...a, completed: true, answer: homeworkAnswer } : a
+      a.id === id ? { ...a, completed: true, status: "completed", answer: homeworkAnswer } : a
     );
     setAssignments(updatedAssignments);
     
@@ -144,7 +163,7 @@ const Index = () => {
       const allAssignments = JSON.parse(allAssignmentsData);
       const updated = allAssignments.map((a: any) => {
         const found = updatedAssignments.find(ua => ua.id === a.id);
-        return found ? { ...a, completed: found.completed, answer: found.answer } : a;
+        return found ? { ...a, completed: found.completed, status: found.status, answer: found.answer } : a;
       });
       localStorage.setItem("lineaschool_assignments", JSON.stringify(updated));
     }

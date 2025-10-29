@@ -86,27 +86,56 @@ const CalendarView = ({
             const day = i + 1;
             const dayAssignments = getAssignmentsForDate(day);
             const isToday = day === selectedDate.getDate();
-            const hasLesson = dayAssignments.some((a) => a.type === "lesson");
-            const hasHomework = dayAssignments.some((a) => a.type === "homework");
+            
+            const scheduledLesson = dayAssignments.find((a) => a.type === "lesson" && a.status === "scheduled");
+            const attendedLesson = dayAssignments.find((a) => a.type === "lesson" && a.status === "attended");
+            const missedLesson = dayAssignments.find((a) => a.type === "lesson" && a.status === "missed");
+            const scheduledHomework = dayAssignments.find((a) => a.type === "homework" && a.status === "scheduled");
+            const completedHomework = dayAssignments.find((a) => a.type === "homework" && a.status === "completed");
+            const notCompletedHomework = dayAssignments.find((a) => a.type === "homework" && a.status === "not_completed");
 
             return (
               <button
                 key={day}
                 onClick={() => setSelectedDate(new Date(selectedDate.getFullYear(), selectedDate.getMonth(), day))}
                 className={cn(
-                  "aspect-square rounded-lg flex flex-col items-center justify-center text-sm font-medium transition-all hover:scale-105",
+                  "aspect-square rounded-lg flex flex-col items-center justify-center text-sm font-medium transition-all hover:scale-105 relative",
                   isToday
                     ? "bg-primary text-primary-foreground shadow-md"
                     : "hover:bg-gray-100"
                 )}
               >
                 <span>{day}</span>
-                <div className="flex gap-1 mt-1">
-                  {hasLesson && (
-                    <div className="w-1 h-1 rounded-full bg-accent" />
+                <div className="absolute bottom-1 flex gap-0.5">
+                  {scheduledLesson && (
+                    <div className="w-2 h-2 rounded-full bg-orange-500" title="Запланированный урок" />
                   )}
-                  {hasHomework && (
-                    <div className="w-1 h-1 rounded-full bg-purple-400" />
+                  {attendedLesson && (
+                    <div className="w-2 h-2 flex items-center justify-center" title="Посещенный урок">
+                      <Icon name="Check" size={10} className="text-green-600" strokeWidth={3} />
+                      <div className="absolute w-2.5 h-2.5 border border-dashed border-green-600 rounded-full" />
+                    </div>
+                  )}
+                  {missedLesson && (
+                    <div className="w-2 h-2 flex items-center justify-center" title="Пропущенный урок">
+                      <Icon name="X" size={10} className="text-red-600" strokeWidth={3} />
+                      <div className="absolute w-2.5 h-2.5 border border-dashed border-red-600 rounded-full" />
+                    </div>
+                  )}
+                  {scheduledHomework && (
+                    <div className="w-2 h-2 rounded-full bg-sky-500" title="Запланированное ДЗ" />
+                  )}
+                  {completedHomework && (
+                    <div className="w-2 h-2 flex items-center justify-center" title="Выполненное ДЗ">
+                      <Icon name="Check" size={10} className="text-green-600" strokeWidth={3} />
+                      <div className="absolute w-2.5 h-2.5 border border-dashed border-green-600 rounded-full" />
+                    </div>
+                  )}
+                  {notCompletedHomework && (
+                    <div className="w-2 h-2 flex items-center justify-center" title="Невыполненное ДЗ">
+                      <Icon name="Check" size={10} className="text-red-600" strokeWidth={3} />
+                      <div className="absolute w-2.5 h-2.5 border border-dashed border-red-600 rounded-full" />
+                    </div>
                   )}
                 </div>
               </button>
