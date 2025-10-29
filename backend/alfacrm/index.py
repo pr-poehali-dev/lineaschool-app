@@ -155,7 +155,11 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             print(f'Items count: {len(data.get("items", []))}')
             print(f'Total: {data.get("total", 0)}')
             if data.get('items'):
-                print(f'First item sample: {json.dumps(data["items"][0], ensure_ascii=False)[:200]}')
+                first_item = data["items"][0]
+                print(f'First item keys: {list(first_item.keys())}')
+                print(f'First item id: {first_item.get("id")}')
+                print(f'First item name: {first_item.get("name")}')
+                print(f'First item phone field: {first_item.get("phone", "NOT FOUND")}')
             
             return {
                 'statusCode': 200,
