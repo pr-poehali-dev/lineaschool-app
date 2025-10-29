@@ -218,7 +218,7 @@ const CalendarView = ({
 
       <div className="space-y-4">
         <h3 className="text-lg font-semibold text-secondary px-2">
-          Задания на {selectedDate.getDate()} {monthNames[selectedDate.getMonth()].toLowerCase()}
+          План на {selectedDate.getDate()} {monthNames[selectedDate.getMonth()].toLowerCase()}
         </h3>
         {todayAssignments.length === 0 ? (
           <Card className="p-8 text-center border-0 bg-white/60 backdrop-blur">
