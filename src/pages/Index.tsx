@@ -33,7 +33,7 @@ const Index = () => {
       localStorage.setItem("lineaschool_users", JSON.stringify(initialUsers));
     }
     
-    const assignmentsData = localStorage.getItem("lineaschool_assignments_v6");
+    const assignmentsData = localStorage.getItem("lineaschool_assignments_v7");
     if (!assignmentsData) {
       const tuesdays = [7, 14, 21, 28];
       const thursdays = [2, 9, 16, 23, 30];
@@ -94,13 +94,13 @@ const Index = () => {
         { id: "hw16", studentId: "3", title: "Домашнее задание", subject: "Английский", date: new Date(2025, 9, 27).toISOString(), type: "homework", status: "scheduled", createdBy: "2" },
         { id: "hw17", studentId: "3", title: "Домашнее задание", subject: "Английский", date: new Date(2025, 9, 29).toISOString(), type: "homework", status: "scheduled", createdBy: "2" }
       ];
-      localStorage.setItem("lineaschool_assignments_v6", JSON.stringify(initialAssignments));
+      localStorage.setItem("lineaschool_assignments_v7", JSON.stringify(initialAssignments));
     }
   }, []);
   
   useEffect(() => {
     if (user && user.role === "student") {
-      const assignmentsData = localStorage.getItem("lineaschool_assignments_v6");
+      const assignmentsData = localStorage.getItem("lineaschool_assignments_v7");
       if (assignmentsData) {
         const allAssignments = JSON.parse(assignmentsData).map((a: any) => ({
           ...a,
@@ -109,7 +109,7 @@ const Index = () => {
         setAssignments(allAssignments.filter((a: Assignment) => a.studentId === user.id));
       }
     } else if (selectedStudent) {
-      const assignmentsData = localStorage.getItem("lineaschool_assignments_v6");
+      const assignmentsData = localStorage.getItem("lineaschool_assignments_v7");
       if (assignmentsData) {
         const allAssignments = JSON.parse(assignmentsData).map((a: any) => ({
           ...a,
@@ -173,7 +173,7 @@ const Index = () => {
   };
 
   const handleAddAssignment = (assignment: Assignment) => {
-    const assignmentsData = localStorage.getItem("lineaschool_assignments_v6");
+    const assignmentsData = localStorage.getItem("lineaschool_assignments_v7");
     const allAssignments = assignmentsData ? JSON.parse(assignmentsData) : [];
     allAssignments.push(assignment);
     localStorage.setItem("lineaschool_assignments_v6", JSON.stringify(allAssignments));
@@ -193,7 +193,7 @@ const Index = () => {
         const found = updatedAssignments.find(ua => ua.id === a.id);
         return found ? { ...a, completed: found.completed } : a;
       });
-      localStorage.setItem("lineaschool_assignments_v6", JSON.stringify(updated));
+      localStorage.setItem("lineaschool_assignments_v7", JSON.stringify(updated));
     }
   };
 
@@ -210,7 +210,7 @@ const Index = () => {
         const found = updatedAssignments.find(ua => ua.id === a.id);
         return found ? { ...a, completed: found.completed, status: found.status, answer: found.answer } : a;
       });
-      localStorage.setItem("lineaschool_assignments_v6", JSON.stringify(updated));
+      localStorage.setItem("lineaschool_assignments_v7", JSON.stringify(updated));
     }
     
     setSelectedHomework(null);
