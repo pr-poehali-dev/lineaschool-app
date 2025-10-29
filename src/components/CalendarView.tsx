@@ -98,37 +98,41 @@ const CalendarView = ({
             
             if (missedLesson) {
               markerElement = (
-                <div className="w-3 h-3 flex items-center justify-center relative" title="Пропущенный урок">
-                  <Icon name="X" size={13} className="text-red-600" strokeWidth={3} />
-                  <div className="absolute w-4 h-4 border border-dashed border-red-600 rounded-full" />
+                <div className="w-4 h-4 flex items-center justify-center relative" title="Пропущенный урок">
+                  <div className="absolute inset-0 border border-dashed border-red-600 rounded-full" />
+                  <Icon name="X" size={13} className="text-red-600 relative z-10" strokeWidth={3} />
                 </div>
               );
             } else if (notCompletedHomework) {
               markerElement = (
-                <div className="w-3 h-3 flex items-center justify-center" title="Невыполненное ДЗ">
+                <div className="w-4 h-4 flex items-center justify-center" title="Невыполненное ДЗ">
                   <Icon name="X" size={13} className="text-red-600" strokeWidth={3} />
                 </div>
               );
             } else if (attendedLesson) {
               markerElement = (
-                <div className="w-3 h-3 flex items-center justify-center relative" title="Посещенный урок">
-                  <Icon name="Check" size={13} className="text-green-600" strokeWidth={3} />
-                  <div className="absolute w-4 h-4 border border-dashed border-green-600 rounded-full" />
+                <div className="w-4 h-4 flex items-center justify-center relative" title="Посещенный урок">
+                  <div className="absolute inset-0 border border-dashed border-green-600 rounded-full" />
+                  <Icon name="Check" size={13} className="text-green-600 relative z-10" strokeWidth={3} />
                 </div>
               );
             } else if (completedHomework) {
               markerElement = (
-                <div className="w-3 h-3 flex items-center justify-center" title="Выполненное ДЗ">
+                <div className="w-4 h-4 flex items-center justify-center" title="Выполненное ДЗ">
                   <Icon name="Check" size={13} className="text-green-600" strokeWidth={3} />
                 </div>
               );
             } else if (scheduledLesson) {
               markerElement = (
-                <div className="w-3 h-3 rounded-full bg-orange-500" title="Запланированный урок" />
+                <div className="w-4 h-4 flex items-center justify-center" title="Запланированный урок">
+                  <div className="w-3 h-3 rounded-full bg-orange-500" />
+                </div>
               );
             } else if (scheduledHomework) {
               markerElement = (
-                <div className="w-3 h-3 rounded-full bg-sky-500" title="Запланированное ДЗ" />
+                <div className="w-4 h-4 flex items-center justify-center" title="Запланированное ДЗ">
+                  <div className="w-3 h-3 rounded-full bg-sky-500" />
+                </div>
               );
             }
 
