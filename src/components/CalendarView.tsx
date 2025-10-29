@@ -87,12 +87,52 @@ const CalendarView = ({
             const dayAssignments = getAssignmentsForDate(day);
             const isToday = day === selectedDate.getDate();
             
-            const scheduledLesson = dayAssignments.find((a) => a.type === "lesson" && a.status === "scheduled");
-            const attendedLesson = dayAssignments.find((a) => a.type === "lesson" && a.status === "attended");
             const missedLesson = dayAssignments.find((a) => a.type === "lesson" && a.status === "missed");
-            const scheduledHomework = dayAssignments.find((a) => a.type === "homework" && a.status === "scheduled");
-            const completedHomework = dayAssignments.find((a) => a.type === "homework" && a.status === "completed");
             const notCompletedHomework = dayAssignments.find((a) => a.type === "homework" && a.status === "not_completed");
+            const attendedLesson = dayAssignments.find((a) => a.type === "lesson" && a.status === "attended");
+            const completedHomework = dayAssignments.find((a) => a.type === "homework" && a.status === "completed");
+            const scheduledLesson = dayAssignments.find((a) => a.type === "lesson" && a.status === "scheduled");
+            const scheduledHomework = dayAssignments.find((a) => a.type === "homework" && a.status === "scheduled");
+            
+            let markerElement = null;
+            
+            if (missedLesson) {
+              markerElement = (
+                <div className="w-3 h-3 flex items-center justify-center relative" title="Пропущенный урок">
+                  <Icon name="X" size={14} className="text-red-600" strokeWidth={3} />
+                  <div className="absolute w-4 h-4 border border-dashed border-red-600 rounded-full" />
+                </div>
+              );
+            } else if (notCompletedHomework) {
+              markerElement = (
+                <div className="w-3 h-3 flex items-center justify-center relative" title="Невыполненное ДЗ">
+                  <Icon name="Check" size={14} className="text-red-600" strokeWidth={3} />
+                  <div className="absolute w-4 h-4 border border-dashed border-red-600 rounded-full" />
+                </div>
+              );
+            } else if (attendedLesson) {
+              markerElement = (
+                <div className="w-3 h-3 flex items-center justify-center relative" title="Посещенный урок">
+                  <Icon name="Check" size={14} className="text-green-600" strokeWidth={3} />
+                  <div className="absolute w-4 h-4 border border-dashed border-green-600 rounded-full" />
+                </div>
+              );
+            } else if (completedHomework) {
+              markerElement = (
+                <div className="w-3 h-3 flex items-center justify-center relative" title="Выполненное ДЗ">
+                  <Icon name="Check" size={14} className="text-green-600" strokeWidth={3} />
+                  <div className="absolute w-4 h-4 border border-dashed border-green-600 rounded-full" />
+                </div>
+              );
+            } else if (scheduledLesson) {
+              markerElement = (
+                <div className="w-3 h-3 rounded-full bg-orange-500" title="Запланированный урок" />
+              );
+            } else if (scheduledHomework) {
+              markerElement = (
+                <div className="w-3 h-3 rounded-full bg-sky-500" title="Запланированное ДЗ" />
+              );
+            }
 
             return (
               <button
@@ -106,38 +146,11 @@ const CalendarView = ({
                 )}
               >
                 <span>{day}</span>
-                <div className="absolute bottom-1 flex gap-0.5">
-                  {scheduledLesson && (
-                    <div className="w-2 h-2 rounded-full bg-orange-500" title="Запланированный урок" />
-                  )}
-                  {attendedLesson && (
-                    <div className="w-2 h-2 flex items-center justify-center" title="Посещенный урок">
-                      <Icon name="Check" size={10} className="text-green-600" strokeWidth={3} />
-                      <div className="absolute w-2.5 h-2.5 border border-dashed border-green-600 rounded-full" />
-                    </div>
-                  )}
-                  {missedLesson && (
-                    <div className="w-2 h-2 flex items-center justify-center" title="Пропущенный урок">
-                      <Icon name="X" size={10} className="text-red-600" strokeWidth={3} />
-                      <div className="absolute w-2.5 h-2.5 border border-dashed border-red-600 rounded-full" />
-                    </div>
-                  )}
-                  {scheduledHomework && (
-                    <div className="w-2 h-2 rounded-full bg-sky-500" title="Запланированное ДЗ" />
-                  )}
-                  {completedHomework && (
-                    <div className="w-2 h-2 flex items-center justify-center" title="Выполненное ДЗ">
-                      <Icon name="Check" size={10} className="text-green-600" strokeWidth={3} />
-                      <div className="absolute w-2.5 h-2.5 border border-dashed border-green-600 rounded-full" />
-                    </div>
-                  )}
-                  {notCompletedHomework && (
-                    <div className="w-2 h-2 flex items-center justify-center" title="Невыполненное ДЗ">
-                      <Icon name="Check" size={10} className="text-red-600" strokeWidth={3} />
-                      <div className="absolute w-2.5 h-2.5 border border-dashed border-red-600 rounded-full" />
-                    </div>
-                  )}
-                </div>
+                {markerElement && (
+                  <div className="absolute bottom-1.5">
+                    {markerElement}
+                  </div>
+                )}
               </button>
             );
           })}
