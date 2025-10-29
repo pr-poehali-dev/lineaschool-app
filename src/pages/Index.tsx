@@ -237,23 +237,8 @@ const Index = () => {
   };
 
   if (!user) {
-    return (
-      <div className="min-h-screen flex flex-col">
-        <div className="flex-1">
-          <LoginForm onLogin={handleLogin} />
-        </div>
-        <div className="p-4 text-center border-t">
-          <Button
-            variant="outline"
-            onClick={() => navigate("/login")}
-            className="gap-2"
-          >
-            <Icon name="GraduationCap" size={18} />
-            Вход для учеников
-          </Button>
-        </div>
-      </div>
-    );
+    navigate("/");
+    return null;
   }
 
   if (user.role === "admin" && !selectedStudent) {
