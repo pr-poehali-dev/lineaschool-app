@@ -78,7 +78,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         auth_token = get_auth_token(domain, email, api_key)
         students = fetch_students(domain, int(branch_id), auth_token)
         
-        # Connect to database
+        # Connect to database (use simple query protocol only)
         conn = psycopg2.connect(db_dsn)
         cur = conn.cursor()
         
@@ -88,37 +88,31 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         
         for student in students:
             phone = normalize_phone(student.get('phone', ''))
-            name = student.get('name', '')
-            student_id = student.get('id', '')
+            name = student.get('name', '').replace("'", "''")
+            student_id = str(student.get('id', '')).replace("'", "''")
             
             if not phone or not name:
                 skipped += 1
                 continue
             
             try:
-                # Check if student exists
-                cur.execute(
-                    "SELECT id FROM t_p720035_lineaschool_app.users WHERE phone = %s",
-                    (phone,)
-                )
+                # Check if student exists (simple query)
+                query = f"SELECT id FROM t_p720035_lineaschool_app.users WHERE phone = '{phone}'"
+                cur.execute(query)
                 existing = cur.fetchone()
                 
                 if existing:
                     # Update existing student
-                    cur.execute(
-                        """UPDATE t_p720035_lineaschool_app.users 
-                           SET full_name = %s, login = %s 
-                           WHERE phone = %s""",
-                        (name, f'student_{student_id}', phone)
-                    )
+                    query = f"""UPDATE t_p720035_lineaschool_app.users 
+                               SET full_name = '{name}', login = 'student_{student_id}' 
+                               WHERE phone = '{phone}'"""
+                    cur.execute(query)
                 else:
                     # Insert new student
-                    cur.execute(
-                        """INSERT INTO t_p720035_lineaschool_app.users 
-                           (login, password, full_name, role, phone) 
-                           VALUES (%s, %s, %s, %s, %s)""",
-                        (f'student_{student_id}', phone, name, 'student', phone)
-                    )
+                    query = f"""INSERT INTO t_p720035_lineaschool_app.users 
+                               (login, password, full_name, role, phone) 
+                               VALUES ('student_{student_id}', '{phone}', '{name}', 'student', '{phone}')"""
+                    cur.execute(query)
                 synced += 1
             except Exception as e:
                 errors.append(f"Student {name}: {str(e)}")
