@@ -60,7 +60,7 @@ const Index = () => {
           date: new Date(2025, 9, day).toISOString(),
           type: "lesson" as const,
           lessonType: "group" as const,
-          status: day === 2 ? "missed" : "scheduled",
+          status: day === 2 ? "missed" : (day < 9 ? "attended" : "scheduled"),
           dueTime: "10:00",
           createdBy: "2"
         })),
@@ -72,7 +72,7 @@ const Index = () => {
           date: new Date(2025, 9, day).toISOString(),
           type: "lesson" as const,
           lessonType: "individual_speech" as const,
-          status: "scheduled",
+          status: day === 3 ? "missed" : (day < 9 ? "attended" : "scheduled"),
           dueTime: "11:00",
           createdBy: "2"
         })),
