@@ -1,0 +1,20 @@
+{
+  "tests": [
+    {
+      "name": "Test AlfaCRM connection",
+      "method": "GET",
+      "path": "/?type=test",
+      "expectedStatus": 200,
+      "expectedBody": {
+        "success": true
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Test OPTIONS for CORS",
+      "method": "OPTIONS",
+      "path": "/",
+      "expectedStatus": 200
+    }
+  ]
+}
