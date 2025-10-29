@@ -164,6 +164,56 @@ const CalendarView = ({
             );
           })}
         </div>
+
+        <div className="mt-4 pt-4 border-t border-gray-200">
+          <h4 className="text-xs font-medium text-muted-foreground mb-3">Обозначения:</h4>
+          <div className="grid grid-cols-2 gap-2 text-xs">
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 flex items-center justify-center flex-shrink-0">
+                <div className="w-3 h-3 rounded-full bg-orange-500" />
+              </div>
+              <span className="text-muted-foreground">Урок запланирован</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 flex items-center justify-center flex-shrink-0">
+                <div className="w-3 h-3 rounded-full bg-sky-500" />
+              </div>
+              <span className="text-muted-foreground">ДЗ запланировано</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 flex items-center justify-center relative flex-shrink-0">
+                <div className="absolute inset-0 border border-dashed border-green-600 rounded-full" />
+                <Icon name="Check" size={13} className="text-green-600 relative z-10" strokeWidth={3} />
+              </div>
+              <span className="text-muted-foreground">Урок посещен</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 flex items-center justify-center relative flex-shrink-0">
+                <div className="absolute inset-0 border border-dashed border-red-600 rounded-full" />
+                <Icon name="X" size={13} className="text-red-600 relative z-10" strokeWidth={3} />
+              </div>
+              <span className="text-muted-foreground">Урок пропущен</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 flex items-center justify-center flex-shrink-0">
+                <Icon name="Check" size={13} className="text-green-600" strokeWidth={3} />
+              </div>
+              <span className="text-muted-foreground">ДЗ выполнено</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 flex items-center justify-center flex-shrink-0">
+                <Icon name="Check" size={13} className="text-yellow-500" strokeWidth={3} />
+              </div>
+              <span className="text-muted-foreground">ДЗ с опозданием</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 flex items-center justify-center flex-shrink-0">
+                <Icon name="X" size={13} className="text-red-600" strokeWidth={3} />
+              </div>
+              <span className="text-muted-foreground">ДЗ не выполнено</span>
+            </div>
+          </div>
+        </div>
       </Card>
 
       <div className="space-y-4">
