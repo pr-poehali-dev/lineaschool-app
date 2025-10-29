@@ -142,9 +142,20 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 'count': 50
             }).encode('utf-8')
             
+            print(f'Requesting students from: {url}')
+            print(f'Request data: {request_data.decode("utf-8")}')
+            
             req = Request(url, data=request_data, headers=headers, method='POST')
             with urlopen(req, timeout=15) as response:
-                data = json.loads(response.read().decode('utf-8'))
+                response_text = response.read().decode('utf-8')
+                print(f'Raw response: {response_text[:500]}...')
+                data = json.loads(response_text)
+            
+            print(f'Parsed data keys: {list(data.keys())}')
+            print(f'Items count: {len(data.get("items", []))}')
+            print(f'Total: {data.get("total", 0)}')
+            if data.get('items'):
+                print(f'First item sample: {json.dumps(data["items"][0], ensure_ascii=False)[:200]}')
             
             return {
                 'statusCode': 200,
