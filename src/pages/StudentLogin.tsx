@@ -13,6 +13,10 @@ const StudentLogin = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
+  const normalizePhone = (phone: string) => {
+    return phone.replace(/[\s\-\(\)\+]/g, '');
+  };
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -26,8 +30,10 @@ const StudentLogin = () => {
       
       const data = await response.json();
       
+      const normalizedInput = normalizePhone(phone);
+      
       const student = data.students?.find(
-        (s: any) => s.phone === phone
+        (s: any) => normalizePhone(s.phone || '') === normalizedInput
       );
 
       if (student) {
