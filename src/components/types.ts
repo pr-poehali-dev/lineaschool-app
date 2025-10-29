@@ -5,6 +5,7 @@ export interface Assignment {
   subject: string;
   date: Date;
   type: "lesson" | "homework";
+  lessonType?: "group" | "individual_speech" | "individual_neuro";
   completed?: boolean;
   dueTime?: string;
   description?: string;

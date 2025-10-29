@@ -33,46 +33,70 @@ const Index = () => {
       localStorage.setItem("lineaschool_users", JSON.stringify(initialUsers));
     }
     
-    const assignmentsData = localStorage.getItem("lineaschool_assignments_v4");
+    const assignmentsData = localStorage.getItem("lineaschool_assignments_v5");
     if (!assignmentsData) {
+      const getOctoberTuesdays = () => [1, 8, 15, 22, 29];
+      const getOctoberThursdays = () => [3, 10, 17, 24, 31];
+      const getOctoberFridays = () => [4, 11, 18, 25];
+      
+      const tuesdays = getOctoberTuesdays();
+      const thursdays = getOctoberThursdays();
+      const fridays = getOctoberFridays();
+      
       const initialAssignments = [
-        { id: "1", studentId: "3", title: "Домашнее задание", subject: "Английский", date: new Date(2025, 9, 1).toISOString(), type: "homework", status: "not_completed", createdBy: "2" },
-        { id: "2", studentId: "3", title: "Урок английского", subject: "Английский", date: new Date(2025, 9, 2).toISOString(), type: "lesson", status: "attended", dueTime: "10:00", createdBy: "2" },
-        { id: "3", studentId: "3", title: "Урок английского", subject: "Английский", date: new Date(2025, 9, 3).toISOString(), type: "lesson", status: "missed", dueTime: "10:00", createdBy: "2" },
-        { id: "4", studentId: "3", title: "Домашнее задание", subject: "Английский", date: new Date(2025, 9, 4).toISOString(), type: "homework", status: "completed_late", completed: true, createdBy: "2" },
-        { id: "5", studentId: "3", title: "Домашнее задание", subject: "Английский", date: new Date(2025, 9, 5).toISOString(), type: "homework", status: "completed", completed: true, createdBy: "2" },
-        { id: "6", studentId: "3", title: "Домашнее задание", subject: "Английский", date: new Date(2025, 9, 6).toISOString(), type: "homework", status: "not_completed", createdBy: "2" },
-        { id: "7", studentId: "3", title: "Урок английского", subject: "Английский", date: new Date(2025, 9, 7).toISOString(), type: "lesson", status: "attended", dueTime: "10:00", createdBy: "2" },
-        { id: "8", studentId: "3", title: "Домашнее задание", subject: "Английский", date: new Date(2025, 9, 8).toISOString(), type: "homework", status: "completed", completed: true, createdBy: "2" },
-        { id: "9", studentId: "3", title: "Урок английского", subject: "Английский", date: new Date(2025, 9, 9).toISOString(), type: "lesson", status: "scheduled", dueTime: "10:00", createdBy: "2" },
-        { id: "10", studentId: "3", title: "Урок английского", subject: "Английский", date: new Date(2025, 9, 10).toISOString(), type: "lesson", status: "scheduled", dueTime: "10:00", createdBy: "2" },
-        { id: "11", studentId: "3", title: "Домашнее задание", subject: "Английский", date: new Date(2025, 9, 11).toISOString(), type: "homework", status: "scheduled", createdBy: "2" },
-        { id: "12", studentId: "3", title: "Домашнее задание", subject: "Английский", date: new Date(2025, 9, 12).toISOString(), type: "homework", status: "scheduled", createdBy: "2" },
-        { id: "13a", studentId: "3", title: "Домашнее задание", subject: "Английский", date: new Date(2025, 9, 13).toISOString(), type: "homework", status: "scheduled", createdBy: "2" },
-        { id: "13", studentId: "3", title: "Урок английского", subject: "Английский", date: new Date(2025, 9, 14).toISOString(), type: "lesson", status: "scheduled", dueTime: "10:00", createdBy: "2" },
-        { id: "14", studentId: "3", title: "Домашнее задание", subject: "Английский", date: new Date(2025, 9, 15).toISOString(), type: "homework", status: "scheduled", createdBy: "2" },
-        { id: "15", studentId: "3", title: "Урок английского", subject: "Английский", date: new Date(2025, 9, 16).toISOString(), type: "lesson", status: "scheduled", dueTime: "10:00", createdBy: "2" },
-        { id: "16", studentId: "3", title: "Урок английского", subject: "Английский", date: new Date(2025, 9, 17).toISOString(), type: "lesson", status: "scheduled", dueTime: "10:00", createdBy: "2" },
-        { id: "17", studentId: "3", title: "Домашнее задание", subject: "Английский", date: new Date(2025, 9, 18).toISOString(), type: "homework", status: "scheduled", createdBy: "2" },
-        { id: "18", studentId: "3", title: "Домашнее задание", subject: "Английский", date: new Date(2025, 9, 19).toISOString(), type: "homework", status: "scheduled", createdBy: "2" },
-        { id: "18a", studentId: "3", title: "Домашнее задание", subject: "Английский", date: new Date(2025, 9, 20).toISOString(), type: "homework", status: "scheduled", createdBy: "2" },
-        { id: "19", studentId: "3", title: "Урок английского", subject: "Английский", date: new Date(2025, 9, 21).toISOString(), type: "lesson", status: "scheduled", dueTime: "10:00", createdBy: "2" },
-        { id: "20", studentId: "3", title: "Домашнее задание", subject: "Английский", date: new Date(2025, 9, 22).toISOString(), type: "homework", status: "scheduled", createdBy: "2" },
-        { id: "21", studentId: "3", title: "Урок английского", subject: "Английский", date: new Date(2025, 9, 23).toISOString(), type: "lesson", status: "scheduled", dueTime: "10:00", createdBy: "2" },
-        { id: "22", studentId: "3", title: "Урок английского", subject: "Английский", date: new Date(2025, 9, 24).toISOString(), type: "lesson", status: "scheduled", dueTime: "10:00", createdBy: "2" },
-        { id: "23", studentId: "3", title: "Домашнее задание", subject: "Английский", date: new Date(2025, 9, 27).toISOString(), type: "homework", status: "scheduled", createdBy: "2" },
-        { id: "24", studentId: "3", title: "Урок английского", subject: "Английский", date: new Date(2025, 9, 28).toISOString(), type: "lesson", status: "scheduled", dueTime: "10:00", createdBy: "2" },
-        { id: "25", studentId: "3", title: "Домашнее задание", subject: "Английский", date: new Date(2025, 9, 29).toISOString(), type: "homework", status: "scheduled", createdBy: "2" },
-        { id: "26", studentId: "3", title: "Урок английского", subject: "Английский", date: new Date(2025, 9, 30).toISOString(), type: "lesson", status: "scheduled", dueTime: "10:00", createdBy: "2" },
-        { id: "27", studentId: "3", title: "Урок английского", subject: "Английский", date: new Date(2025, 9, 31).toISOString(), type: "lesson", status: "scheduled", dueTime: "10:00", createdBy: "2" }
+        ...tuesdays.map((day, i) => ({
+          id: `tue-${day}`,
+          studentId: "3",
+          title: "Групповое занятие",
+          subject: "Английский",
+          date: new Date(2025, 9, day).toISOString(),
+          type: "lesson" as const,
+          lessonType: "group" as const,
+          status: i < 1 ? "attended" : "scheduled",
+          dueTime: "10:00",
+          createdBy: "2"
+        })),
+        ...thursdays.map((day, i) => ({
+          id: `thu-${day}`,
+          studentId: "3",
+          title: "Групповое занятие",
+          subject: "Английский",
+          date: new Date(2025, 9, day).toISOString(),
+          type: "lesson" as const,
+          lessonType: "group" as const,
+          status: i < 1 ? "missed" : "scheduled",
+          dueTime: "10:00",
+          createdBy: "2"
+        })),
+        ...fridays.map((day, i) => ({
+          id: `fri-${day}`,
+          studentId: "3",
+          title: "Индивидуальное занятие (логопед)",
+          subject: "Логопедия",
+          date: new Date(2025, 9, day).toISOString(),
+          type: "lesson" as const,
+          lessonType: "individual_speech" as const,
+          status: "scheduled",
+          dueTime: "11:00",
+          createdBy: "2"
+        })),
+        { id: "hw1", studentId: "3", title: "Домашнее задание", subject: "Английский", date: new Date(2025, 9, 2).toISOString(), type: "homework", status: "completed", completed: true, createdBy: "2" },
+        { id: "hw2", studentId: "3", title: "Домашнее задание", subject: "Английский", date: new Date(2025, 9, 5).toISOString(), type: "homework", status: "completed_late", completed: true, createdBy: "2" },
+        { id: "hw3", studentId: "3", title: "Домашнее задание", subject: "Английский", date: new Date(2025, 9, 9).toISOString(), type: "homework", status: "not_completed", createdBy: "2" },
+        { id: "hw4", studentId: "3", title: "Домашнее задание", subject: "Английский", date: new Date(2025, 9, 12).toISOString(), type: "homework", status: "scheduled", createdBy: "2" },
+        { id: "hw5", studentId: "3", title: "Домашнее задание", subject: "Английский", date: new Date(2025, 9, 16).toISOString(), type: "homework", status: "scheduled", createdBy: "2" },
+        { id: "hw6", studentId: "3", title: "Домашнее задание", subject: "Английский", date: new Date(2025, 9, 19).toISOString(), type: "homework", status: "scheduled", createdBy: "2" },
+        { id: "hw7", studentId: "3", title: "Домашнее задание", subject: "Английский", date: new Date(2025, 9, 23).toISOString(), type: "homework", status: "scheduled", createdBy: "2" },
+        { id: "hw8", studentId: "3", title: "Домашнее задание", subject: "Английский", date: new Date(2025, 9, 26).toISOString(), type: "homework", status: "scheduled", createdBy: "2" },
+        { id: "hw9", studentId: "3", title: "Домашнее задание", subject: "Английский", date: new Date(2025, 9, 30).toISOString(), type: "homework", status: "scheduled", createdBy: "2" }
       ];
-      localStorage.setItem("lineaschool_assignments_v4", JSON.stringify(initialAssignments));
+      localStorage.setItem("lineaschool_assignments_v5", JSON.stringify(initialAssignments));
     }
   }, []);
   
   useEffect(() => {
     if (user && user.role === "student") {
-      const assignmentsData = localStorage.getItem("lineaschool_assignments_v4");
+      const assignmentsData = localStorage.getItem("lineaschool_assignments_v5");
       if (assignmentsData) {
         const allAssignments = JSON.parse(assignmentsData).map((a: any) => ({
           ...a,
@@ -81,7 +105,7 @@ const Index = () => {
         setAssignments(allAssignments.filter((a: Assignment) => a.studentId === user.id));
       }
     } else if (selectedStudent) {
-      const assignmentsData = localStorage.getItem("lineaschool_assignments_v4");
+      const assignmentsData = localStorage.getItem("lineaschool_assignments_v5");
       if (assignmentsData) {
         const allAssignments = JSON.parse(assignmentsData).map((a: any) => ({
           ...a,
@@ -145,10 +169,10 @@ const Index = () => {
   };
 
   const handleAddAssignment = (assignment: Assignment) => {
-    const assignmentsData = localStorage.getItem("lineaschool_assignments_v4");
+    const assignmentsData = localStorage.getItem("lineaschool_assignments_v5");
     const allAssignments = assignmentsData ? JSON.parse(assignmentsData) : [];
     allAssignments.push(assignment);
-    localStorage.setItem("lineaschool_assignments_v4", JSON.stringify(allAssignments));
+    localStorage.setItem("lineaschool_assignments_v5", JSON.stringify(allAssignments));
     setActiveTab("calendar");
   };
 
@@ -158,14 +182,14 @@ const Index = () => {
     );
     setAssignments(updatedAssignments);
     
-    const allAssignmentsData = localStorage.getItem("lineaschool_assignments_v4");
+    const allAssignmentsData = localStorage.getItem("lineaschool_assignments_v5");
     if (allAssignmentsData) {
       const allAssignments = JSON.parse(allAssignmentsData);
       const updated = allAssignments.map((a: any) => {
         const found = updatedAssignments.find(ua => ua.id === a.id);
         return found ? { ...a, completed: found.completed } : a;
       });
-      localStorage.setItem("lineaschool_assignments_v4", JSON.stringify(updated));
+      localStorage.setItem("lineaschool_assignments_v5", JSON.stringify(updated));
     }
   };
 
@@ -175,14 +199,14 @@ const Index = () => {
     );
     setAssignments(updatedAssignments);
     
-    const allAssignmentsData = localStorage.getItem("lineaschool_assignments_v4");
+    const allAssignmentsData = localStorage.getItem("lineaschool_assignments_v5");
     if (allAssignmentsData) {
       const allAssignments = JSON.parse(allAssignmentsData);
       const updated = allAssignments.map((a: any) => {
         const found = updatedAssignments.find(ua => ua.id === a.id);
         return found ? { ...a, completed: found.completed, status: found.status, answer: found.answer } : a;
       });
-      localStorage.setItem("lineaschool_assignments_v4", JSON.stringify(updated));
+      localStorage.setItem("lineaschool_assignments_v5", JSON.stringify(updated));
     }
     
     setSelectedHomework(null);

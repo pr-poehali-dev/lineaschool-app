@@ -262,6 +262,13 @@ const CalendarView = ({
                       <Icon name={assignment.type === "lesson" ? "BookOpen" : "PenTool"} size={16} />
                       <span>{assignment.subject}</span>
                     </div>
+                    {assignment.type === "lesson" && assignment.lessonType && (
+                      <Badge variant="secondary" className="text-xs">
+                        {assignment.lessonType === "group" && "Групповое"}
+                        {assignment.lessonType === "individual_speech" && "Инд. (логопед)"}
+                        {assignment.lessonType === "individual_neuro" && "Инд. (нейропсихолог)"}
+                      </Badge>
+                    )}
                     {assignment.dueTime && (
                       <div className="flex items-center gap-1">
                         <Icon name="Clock" size={16} />
