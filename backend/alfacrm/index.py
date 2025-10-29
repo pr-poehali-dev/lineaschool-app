@@ -39,8 +39,9 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     # Get AlfaCRM credentials from environment
     api_key: Optional[str] = os.environ.get('ALFACRM_API_KEY')
     branch_id: Optional[str] = os.environ.get('ALFACRM_BRANCH_ID')
+    domain: Optional[str] = os.environ.get('ALFACRM_DOMAIN')
     
-    if not api_key or not branch_id:
+    if not api_key or not branch_id or not domain:
         return {
             'statusCode': 500,
             'headers': {
@@ -49,15 +50,15 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             },
             'body': json.dumps({
                 'error': 'Missing AlfaCRM credentials',
-                'details': 'ALFACRM_API_KEY or ALFACRM_BRANCH_ID not configured'
+                'details': 'ALFACRM_API_KEY, ALFACRM_BRANCH_ID or ALFACRM_DOMAIN not configured'
             })
         }
     
     params = event.get('queryStringParameters') or {}
     entity_type: str = params.get('type', 'test')
     
-    # AlfaCRM API base URL (v2 API)
-    base_url = f'https://alfacrm.pro/api/v2'
+    # AlfaCRM API base URL (v2 API) with custom domain
+    base_url = f'https://{domain}/v2api'
     
     try:
         if entity_type == 'test':
