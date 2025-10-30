@@ -214,6 +214,7 @@ const StudentCabinet = () => {
                   <Button variant="ghost" size="sm" onClick={handleLogout}>
                     <Icon name="LogOut" size={16} />
                   </Button>
+                </div>
               </div>
             </div>
           </CardHeader>
