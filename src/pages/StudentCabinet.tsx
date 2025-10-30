@@ -59,19 +59,10 @@ const StudentCabinet = () => {
       if (!response.ok) throw new Error("Ошибка загрузки занятий");
       
       const data = await response.json();
-      console.log("Всего занятий:", data.lessons?.length);
-      console.log("Первые 3 занятия:", data.lessons?.slice(0, 3));
       
-      const stats = {
-        total: data.lessons?.length || 0,
-        completed: data.lessons?.filter((l: any) => l.status === 3 && l.details?.[0]?.is_attend === 1).length || 0,
-        missed: data.lessons?.filter((l: any) => l.status === 3 && l.details?.[0]?.is_attend === 0).length || 0,
-        scheduled: data.lessons?.filter((l: any) => l.status === 1).length || 0,
-        status1: data.lessons?.filter((l: any) => l.status === 1).length || 0,
-        status2: data.lessons?.filter((l: any) => l.status === 2).length || 0,
-        status3: data.lessons?.filter((l: any) => l.status === 3).length || 0,
-      };
-      console.log("Статистика по статусам:", stats);
+      console.log("Текущая дата:", new Date().toISOString());
+      console.log("Занятия с status=1:", data.lessons?.filter((l: any) => l.status === 1).map((l: any) => ({ id: l.id, date: l.date, status: l.status })));
+      console.log("Занятия с датой >= 2025-10-30:", data.lessons?.filter((l: any) => l.date >= '2025-10-30').length);
       
       setLessons(data.lessons || []);
     } catch (error) {
