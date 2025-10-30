@@ -56,8 +56,6 @@ const StudentCabinet = () => {
       if (!response.ok) throw new Error("Ошибка загрузки занятий");
       
       const data = await response.json();
-      console.log("Загружено занятий:", data.lessons?.length);
-      console.log("Первое занятие:", data.lessons?.[0]);
       setLessons(data.lessons || []);
     } catch (error) {
       console.error("Ошибка загрузки занятий:", error);
@@ -88,15 +86,20 @@ const StudentCabinet = () => {
     return <Badge variant={statusInfo.variant}>{statusInfo.label}</Badge>;
   };
 
-  const getLessonStatusBadge = (status?: number) => {
-    const statusMap: Record<number, { label: string; variant: "default" | "secondary" | "destructive" | "outline" }> = {
-      1: { label: "Запланировано", variant: "default" },
-      2: { label: "Проведено", variant: "secondary" },
-      3: { label: "Отменено", variant: "destructive" },
-    };
-    
-    const statusInfo = statusMap[status || 1] || { label: "Неизвестно", variant: "outline" };
-    return <Badge variant={statusInfo.variant}>{statusInfo.label}</Badge>;
+  const getLessonStatusBadge = (lesson: any) => {
+    if (lesson.status === 3) {
+      const detail = lesson.details?.[0];
+      if (detail?.is_attend === 1) {
+        return <Badge variant="secondary">Проведено</Badge>;
+      } else if (detail?.is_attend === 0) {
+        return <Badge variant="destructive">Пропущено</Badge>;
+      }
+      return <Badge variant="secondary">Проведено</Badge>;
+    }
+    if (lesson.status === 1) {
+      return <Badge variant="default">Запланировано</Badge>;
+    }
+    return <Badge variant="outline">Неизвестно</Badge>;
   };
 
   const formatDate = (dateString: string) => {
@@ -108,12 +111,23 @@ const StudentCabinet = () => {
     }).format(date);
   };
 
+  const now = new Date();
+  now.setHours(0, 0, 0, 0);
+
   const upcomingLessons = lessons
-    .filter(l => new Date(l.date) >= new Date() && l.status !== 3)
+    .filter(l => {
+      const lessonDate = new Date(l.date);
+      lessonDate.setHours(0, 0, 0, 0);
+      return lessonDate >= now && l.status === 1;
+    })
     .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
   const pastLessons = lessons
-    .filter(l => new Date(l.date) < new Date() || l.status === 2)
+    .filter(l => {
+      const lessonDate = new Date(l.date);
+      lessonDate.setHours(0, 0, 0, 0);
+      return lessonDate < now || l.status === 3;
+    })
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
   if (loading) {
@@ -199,9 +213,21 @@ const StudentCabinet = () => {
                   <CardHeader>
                     <div className="flex items-start justify-between gap-4">
                       <div className="flex-1">
-                        <CardTitle className="text-lg flex items-center gap-2">
+                        <CardTitle className="text-lg flex items-center gap-2 flex-wrap">
                           <Icon name="BookOpen" size={20} className="text-primary" />
                           {lesson.subject_name || "Занятие"}
+                          {lesson.lesson_type_id === 1 && (
+                            <Badge variant="outline" className="text-xs">
+                              <Icon name="Users" size={12} className="mr-1" />
+                              Групповое
+                            </Badge>
+                          )}
+                          {lesson.lesson_type_id === 2 && (
+                            <Badge variant="outline" className="text-xs">
+                              <Icon name="User" size={12} className="mr-1" />
+                              Индивидуальное
+                            </Badge>
+                          )}
                         </CardTitle>
                         <CardDescription className="mt-2 space-y-1">
                           <div className="flex items-center gap-2">
@@ -228,7 +254,7 @@ const StudentCabinet = () => {
                           )}
                         </CardDescription>
                       </div>
-                      {getLessonStatusBadge(lesson.status)}
+                      {getLessonStatusBadge(lesson)}
                     </div>
                   </CardHeader>
                 </Card>
@@ -250,9 +276,21 @@ const StudentCabinet = () => {
                   <CardHeader>
                     <div className="flex items-start justify-between gap-4">
                       <div className="flex-1">
-                        <CardTitle className="text-lg flex items-center gap-2">
+                        <CardTitle className="text-lg flex items-center gap-2 flex-wrap">
                           <Icon name="BookOpen" size={20} className="text-muted-foreground" />
                           {lesson.subject_name || "Занятие"}
+                          {lesson.lesson_type_id === 1 && (
+                            <Badge variant="outline" className="text-xs">
+                              <Icon name="Users" size={12} className="mr-1" />
+                              Групповое
+                            </Badge>
+                          )}
+                          {lesson.lesson_type_id === 2 && (
+                            <Badge variant="outline" className="text-xs">
+                              <Icon name="User" size={12} className="mr-1" />
+                              Индивидуальное
+                            </Badge>
+                          )}
                         </CardTitle>
                         <CardDescription className="mt-2 space-y-1">
                           <div className="flex items-center gap-2">
@@ -273,7 +311,7 @@ const StudentCabinet = () => {
                           )}
                         </CardDescription>
                       </div>
-                      {getLessonStatusBadge(lesson.status)}
+                      {getLessonStatusBadge(lesson)}
                     </div>
                   </CardHeader>
                 </Card>
