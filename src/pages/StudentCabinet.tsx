@@ -264,56 +264,60 @@ const StudentCabinet = () => {
             
             <div className="bg-gray-50 rounded-lg p-3">
               <div className="text-xs font-medium mb-2 text-muted-foreground">Обозначения:</div>
-              <div className="grid grid-cols-2 gap-2 text-xs">
-                <div className="flex items-center gap-2">
-                  <svg viewBox="0 0 16 16" className="w-4 h-4 flex-shrink-0">
-                    <circle cx="8" cy="8" r="6" fill="#60a5fa" />
-                  </svg>
-                  <span className="text-muted-foreground">ДЗ запланировано</span>
+              <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-xs">
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <svg viewBox="0 0 16 16" className="w-4 h-4 flex-shrink-0">
+                      <circle cx="8" cy="8" r="6" fill="#ff8c42" />
+                    </svg>
+                    <span className="text-muted-foreground">Урок оплачен</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <svg viewBox="0 0 16 16" className="w-4 h-4 flex-shrink-0">
+                      <circle cx="8" cy="8" r="6" fill="none" stroke="#ff8c42" strokeWidth="2" />
+                    </svg>
+                    <span className="text-muted-foreground">Урок не оплачен</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <svg viewBox="0 0 16 16" className="w-4 h-4 flex-shrink-0">
+                      <circle cx="8" cy="8" r="7" fill="none" stroke="#22c55e" strokeWidth="1" strokeDasharray="2,2" />
+                      <path d="M4 8 L7 11 L12 5" fill="none" stroke="#22c55e" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                    <span className="text-muted-foreground">Урок проведен</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <svg viewBox="0 0 16 16" className="w-4 h-4 flex-shrink-0">
+                      <circle cx="8" cy="8" r="7" fill="none" stroke="#ef4444" strokeWidth="1" strokeDasharray="2,2" />
+                      <path d="M5 5 L11 11 M11 5 L5 11" fill="none" stroke="#ef4444" strokeWidth="2" strokeLinecap="round" />
+                    </svg>
+                    <span className="text-muted-foreground">Урок отменен</span>
+                  </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <svg viewBox="0 0 16 16" className="w-4 h-4 flex-shrink-0">
-                    <circle cx="8" cy="8" r="6" fill="#ff8c42" />
-                  </svg>
-                  <span className="text-muted-foreground">Урок оплачен</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <svg viewBox="0 0 16 16" className="w-4 h-4 flex-shrink-0">
-                    <circle cx="8" cy="8" r="6" fill="none" stroke="#ff8c42" strokeWidth="2" />
-                  </svg>
-                  <span className="text-muted-foreground">Урок не оплачен</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <svg viewBox="0 0 16 16" className="w-4 h-4 flex-shrink-0">
-                    <path d="M4 8 L7 11 L12 5" fill="none" stroke="#22c55e" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                  </svg>
-                  <span className="text-muted-foreground">ДЗ выполнено</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <svg viewBox="0 0 16 16" className="w-4 h-4 flex-shrink-0">
-                    <circle cx="8" cy="8" r="7" fill="none" stroke="#22c55e" strokeWidth="1" strokeDasharray="2,2" />
-                    <path d="M4 8 L7 11 L12 5" fill="none" stroke="#22c55e" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                  </svg>
-                  <span className="text-muted-foreground">Урок посещен</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <svg viewBox="0 0 16 16" className="w-4 h-4 flex-shrink-0">
-                    <path d="M4 8 L7 11 L12 5" fill="none" stroke="#eab308" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                  </svg>
-                  <span className="text-muted-foreground">ДЗ с опозданием</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <svg viewBox="0 0 16 16" className="w-4 h-4 flex-shrink-0">
-                    <circle cx="8" cy="8" r="7" fill="none" stroke="#ef4444" strokeWidth="1" strokeDasharray="2,2" />
-                    <path d="M5 5 L11 11 M11 5 L5 11" fill="none" stroke="#ef4444" strokeWidth="2" strokeLinecap="round" />
-                  </svg>
-                  <span className="text-muted-foreground">Урок пропущен</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <svg viewBox="0 0 16 16" className="w-4 h-4 flex-shrink-0">
-                    <path d="M5 5 L11 11 M11 5 L5 11" fill="none" stroke="#ef4444" strokeWidth="2" strokeLinecap="round" />
-                  </svg>
-                  <span className="text-muted-foreground">ДЗ не выполнено</span>
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <svg viewBox="0 0 16 16" className="w-4 h-4 flex-shrink-0">
+                      <circle cx="8" cy="8" r="6" fill="#60a5fa" />
+                    </svg>
+                    <span className="text-muted-foreground">ДЗ запланировано</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <svg viewBox="0 0 16 16" className="w-4 h-4 flex-shrink-0">
+                      <path d="M4 8 L7 11 L12 5" fill="none" stroke="#22c55e" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                    <span className="text-muted-foreground">ДЗ выполнено</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <svg viewBox="0 0 16 16" className="w-4 h-4 flex-shrink-0">
+                      <path d="M4 8 L7 11 L12 5" fill="none" stroke="#eab308" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                    <span className="text-muted-foreground">ДЗ с опозданием</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <svg viewBox="0 0 16 16" className="w-4 h-4 flex-shrink-0">
+                      <path d="M5 5 L11 11 M11 5 L5 11" fill="none" stroke="#ef4444" strokeWidth="2" strokeLinecap="round" />
+                    </svg>
+                    <span className="text-muted-foreground">ДЗ не выполнено</span>
+                  </div>
                 </div>
               </div>
             </div>
