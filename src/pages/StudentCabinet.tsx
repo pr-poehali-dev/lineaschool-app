@@ -141,12 +141,18 @@ const StudentCabinet = () => {
                 const isCompleted = lesson.status === 3 && lesson.details?.[0]?.is_attend === 1;
                 const isMissed = lesson.status === 3 && lesson.details?.[0]?.is_attend === 0;
                 const isScheduled = lesson.status === 1;
+                const isPaid = lesson.details?.[0]?.ctt_id !== null;
 
                 return (
                   <div key={lesson.id} className="w-4 h-4">
-                    {isScheduled && (
+                    {isScheduled && isPaid && (
                       <svg viewBox="0 0 16 16" className="w-full h-full">
                         <circle cx="8" cy="8" r="6" fill="#ff8c42" />
+                      </svg>
+                    )}
+                    {isScheduled && !isPaid && (
+                      <svg viewBox="0 0 16 16" className="w-full h-full">
+                        <circle cx="8" cy="8" r="6" fill="none" stroke="#ff8c42" strokeWidth="2" />
                       </svg>
                     )}
                     {isCompleted && (
@@ -269,7 +275,13 @@ const StudentCabinet = () => {
                   <svg viewBox="0 0 16 16" className="w-4 h-4 flex-shrink-0">
                     <circle cx="8" cy="8" r="6" fill="#ff8c42" />
                   </svg>
-                  <span className="text-muted-foreground">Урок запланирован</span>
+                  <span className="text-muted-foreground">Урок оплачен</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <svg viewBox="0 0 16 16" className="w-4 h-4 flex-shrink-0">
+                    <circle cx="8" cy="8" r="6" fill="none" stroke="#ff8c42" strokeWidth="2" />
+                  </svg>
+                  <span className="text-muted-foreground">Урок не оплачен</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <svg viewBox="0 0 16 16" className="w-4 h-4 flex-shrink-0">
