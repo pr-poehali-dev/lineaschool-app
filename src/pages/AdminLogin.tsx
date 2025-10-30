@@ -11,41 +11,8 @@ const AdminLogin = () => {
   const [login, setLogin] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [syncing, setSyncing] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
-
-  const syncStudents = async () => {
-    setSyncing(true);
-    
-    try {
-      const response = await fetch(
-        'https://functions.poehali.dev/7ef3480a-587f-492d-a8fa-27a1c0056429',
-        { method: 'POST' }
-      );
-      
-      if (!response.ok) throw new Error('Sync failed');
-      
-      const data = await response.json();
-      
-      if (data.success) {
-        toast({
-          title: "Синхронизация завершена",
-          description: `Синхронизировано: ${data.synced}, Пропущено: ${data.skipped}`,
-        });
-      } else {
-        throw new Error(data.error);
-      }
-    } catch (error) {
-      toast({
-        title: "Ошибка синхронизации",
-        description: error instanceof Error ? error.message : 'Неизвестная ошибка',
-        variant: "destructive",
-      });
-    } finally {
-      setSyncing(false);
-    }
-  };
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -152,27 +119,6 @@ const AdminLogin = () => {
               )}
             </Button>
           </form>
-          
-          <div className="mt-6 pt-6 border-t">
-            <Button 
-              onClick={syncStudents}
-              disabled={syncing}
-              variant="outline"
-              className="w-full"
-            >
-              {syncing ? (
-                <>
-                  <Icon name="Loader2" size={16} className="mr-2 animate-spin" />
-                  Синхронизация...
-                </>
-              ) : (
-                <>
-                  <Icon name="RefreshCw" size={16} className="mr-2" />
-                  Синхронизировать учеников
-                </>
-              )}
-            </Button>
-          </div>
         </CardContent>
       </Card>
     </div>

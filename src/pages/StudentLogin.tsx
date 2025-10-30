@@ -8,14 +8,11 @@ import { useToast } from "@/hooks/use-toast";
 import Icon from "@/components/ui/icon";
 
 const StudentLogin = () => {
+  const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
-
-  const normalizePhone = (phone: string) => {
-    return phone.replace(/[\s\-\(\)\+]/g, '');
-  };
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -30,12 +27,11 @@ const StudentLogin = () => {
       
       const data = await response.json();
       
-      const normalizedInput = normalizePhone(phone);
-      
-      const student = data.students?.find((s: any) => {
-        const studentPhones = Array.isArray(s.phone) ? s.phone : [s.phone];
-        return studentPhones.some((p: string) => normalizePhone(p || '') === normalizedInput);
-      });
+      const student = data.students?.find(
+        (s: any) => 
+          s.email?.toLowerCase() === email.toLowerCase() || 
+          s.phone === phone
+      );
 
       if (student) {
         localStorage.setItem("studentId", student.id);
@@ -50,7 +46,7 @@ const StudentLogin = () => {
       } else {
         toast({
           title: "Ошибка входа",
-          description: "Ученик с таким телефоном не найден",
+          description: "Ученик с такими данными не найден",
           variant: "destructive",
         });
       }
@@ -66,32 +62,35 @@ const StudentLogin = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-emerald-50 via-background to-emerald-50/30 p-4">
-      <Card className="w-full max-w-md shadow-lg">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/5 via-background to-secondary/5 p-4">
+      <Card className="w-full max-w-md">
         <CardHeader className="space-y-1">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => navigate("/")}
-            className="w-fit mb-2"
-          >
-            <Icon name="ArrowLeft" size={16} className="mr-2" />
-            Назад
-          </Button>
           <div className="flex items-center justify-center mb-4">
-            <div className="w-16 h-16 bg-[#0FA858] rounded-2xl flex items-center justify-center shadow-md">
-              <Icon name="GraduationCap" size={32} className="text-white" />
+            <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center">
+              <Icon name="GraduationCap" size={32} className="text-primary" />
             </div>
           </div>
           <CardTitle className="text-2xl text-center">Личный кабинет</CardTitle>
           <CardDescription className="text-center">
-            Введите номер телефона для входа
+            Войдите используя email или телефон
           </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleLogin} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="phone">Номер телефона</Label>
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                type="email"
+                placeholder="student@example.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                disabled={loading}
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="phone">или Телефон</Label>
               <Input
                 id="phone"
                 type="tel"
@@ -99,16 +98,10 @@ const StudentLogin = () => {
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
                 disabled={loading}
-                required
-                className="text-lg"
               />
             </div>
 
-            <Button 
-              type="submit" 
-              className="w-full h-12 bg-[#0FA858] hover:bg-[#0FA858]/90" 
-              disabled={loading || !phone}
-            >
+            <Button type="submit" className="w-full" disabled={loading || (!email && !phone)}>
               {loading ? (
                 <>
                   <Icon name="Loader2" size={16} className="mr-2 animate-spin" />
