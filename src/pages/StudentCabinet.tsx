@@ -60,9 +60,17 @@ const StudentCabinet = () => {
       
       const data = await response.json();
       
-      console.log("Текущая дата:", new Date().toISOString());
-      console.log("Занятия с status=1:", data.lessons?.filter((l: any) => l.status === 1).map((l: any) => ({ id: l.id, date: l.date, status: l.status })));
-      console.log("Занятия с датой >= 2025-10-30:", data.lessons?.filter((l: any) => l.date >= '2025-10-30').length);
+      const uniqueDates = [...new Set(data.lessons?.map((l: any) => l.date))].sort();
+      console.log("Уникальные даты занятий:", uniqueDates);
+      console.log("Минимальная дата:", uniqueDates[0]);
+      console.log("Максимальная дата:", uniqueDates[uniqueDates.length - 1]);
+      
+      const byStatus = {
+        status1: data.lessons?.filter((l: any) => l.status === 1).length,
+        status2: data.lessons?.filter((l: any) => l.status === 2).length,
+        status3: data.lessons?.filter((l: any) => l.status === 3).length,
+      };
+      console.log("Распределение по статусам:", byStatus);
       
       setLessons(data.lessons || []);
     } catch (error) {
