@@ -191,62 +191,54 @@ const StudentCabinet = () => {
   const scheduledCount = lessons.filter((l) => l.status === 1).length;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-secondary/5">
-      <div className="container mx-auto p-4 md:p-8 max-w-4xl">
-        <Card className="mb-6">
-          <CardHeader>
-            <div className="flex items-center justify-between flex-wrap gap-4">
-              <div className="flex items-center gap-4">
-                <Avatar className="w-16 h-16 bg-primary">
-                  <AvatarFallback className="text-lg bg-primary text-primary-foreground">
-                    <Icon name="BookOpen" size={32} />
-                  </AvatarFallback>
-                </Avatar>
-                <div>
-                  <div className="text-2xl font-bold text-primary">LineaSchool</div>
-                  <div className="text-sm text-muted-foreground">Личный кабинет ученика</div>
-                </div>
+    <div className="min-h-screen bg-white">
+      <div className="max-w-md mx-auto">
+        <div className="bg-white border-b sticky top-0 z-10">
+          <div className="p-4 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 bg-primary rounded-lg flex items-center justify-center">
+                <Icon name="BookOpen" size={24} className="text-white" />
               </div>
-              <div className="flex flex-col items-end gap-1">
-                <div className="text-sm text-muted-foreground">{student.name}</div>
-                <div className="flex items-center gap-2">
-                  {getStatusBadge(student.status)}
-                  <Button variant="ghost" size="sm" onClick={handleLogout}>
-                    <Icon name="LogOut" size={16} />
-                  </Button>
-                </div>
+              <div>
+                <div className="text-lg font-bold text-primary">LineaSchool</div>
+                <div className="text-xs text-muted-foreground">Личный кабинет ученика</div>
               </div>
             </div>
-          </CardHeader>
-        </Card>
+            <Button variant="ghost" size="icon" onClick={handleLogout}>
+              <Icon name="LogOut" size={20} />
+            </Button>
+          </div>
+          <div className="px-4 pb-3">
+            <div className="text-sm font-medium mb-1">{student.name}</div>
+            <div className="text-xs text-muted-foreground">Ученик</div>
+          </div>
+        </div>
 
-        <Card>
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <CardTitle className="capitalize text-xl">{monthName}</CardTitle>
-              <div className="flex gap-2">
-                <Button variant="ghost" size="icon" onClick={prevMonth}>
-                  <Icon name="ChevronLeft" size={20} />
-                </Button>
-                <Button variant="ghost" size="icon" onClick={nextMonth}>
-                  <Icon name="ChevronRight" size={20} />
-                </Button>
-              </div>
+        <div className="p-4">
+          <div className="mb-4 flex items-center justify-between">
+            <h2 className="text-lg font-semibold capitalize">{monthName}</h2>
+            <div className="flex gap-1">
+              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={prevMonth}>
+                <Icon name="ChevronLeft" size={18} />
+              </Button>
+              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={nextMonth}>
+                <Icon name="ChevronRight" size={18} />
+              </Button>
             </div>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-7 gap-2 mb-4">
+          </div>
+          <div>
+            <div className="grid grid-cols-7 gap-1 mb-2">
               {["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"].map((day) => (
                 <div key={day} className="text-center text-sm font-medium text-muted-foreground">
                   {day}
                 </div>
               ))}
             </div>
-            <div className="grid grid-cols-7 gap-2 mb-6">{renderCalendar()}</div>
+            <div className="grid grid-cols-7 gap-1 mb-4">{renderCalendar()}</div>
             
-            <div className="border-t pt-4">
-              <div className="text-sm font-medium mb-3">Обозначения:</div>
-              <div className="grid grid-cols-2 gap-3 text-sm">
+            <div className="bg-gray-50 rounded-lg p-3">
+              <div className="text-xs font-medium mb-2 text-muted-foreground">Обозначения:</div>
+              <div className="grid grid-cols-2 gap-2 text-xs">
                 <div className="flex items-center gap-2">
                   <span className="text-lg">🔵</span>
                   <span className="text-muted-foreground">ДЗ запланировано</span>
@@ -277,8 +269,8 @@ const StudentCabinet = () => {
                 </div>
               </div>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </div>
     </div>
   );
