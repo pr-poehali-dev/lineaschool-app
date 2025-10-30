@@ -6,7 +6,6 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import Icon from "@/components/ui/icon";
-import { ChevronLeft, ChevronRight } from "lucide-react";
 
 interface Student {
   id: string;
@@ -112,7 +111,7 @@ const StudentCabinet = () => {
     const adjustedStart = startingDayOfWeek === 0 ? 6 : startingDayOfWeek - 1;
 
     for (let i = 0; i < adjustedStart; i++) {
-      days.push(<div key={`empty-${i}`} className="aspect-square" />);
+      days.push(<div key={`empty-${i}`} className="h-16" />);
     }
 
     for (let day = 1; day <= daysInMonth; day++) {
@@ -123,45 +122,30 @@ const StudentCabinet = () => {
       days.push(
         <div
           key={day}
-          className={`aspect-square border rounded-lg p-2 ${
-            isToday ? "border-primary bg-primary/5" : "border-border"
-          } hover:shadow-md transition-shadow`}
+          className={`h-16 relative flex flex-col items-center justify-start pt-1 ${
+            isToday ? "bg-primary text-primary-foreground rounded-full w-8 h-8 mx-auto flex items-center justify-center" : ""
+          }`}
         >
-          <div className="text-sm font-medium mb-1">{day}</div>
-          <div className="space-y-1">
-            {dayLessons.map((lesson) => {
-              const isCompleted = lesson.status === 3 && lesson.details?.[0]?.is_attend === 1;
-              const isMissed = lesson.status === 3 && lesson.details?.[0]?.is_attend === 0;
-              const isScheduled = lesson.status === 1;
-              const isGroup = lesson.lesson_type_id === 1;
-
-              return (
-                <div
-                  key={lesson.id}
-                  className={`text-xs p-1 rounded cursor-pointer ${
-                    isCompleted
-                      ? "bg-green-100 text-green-800 hover:bg-green-200"
-                      : isMissed
-                      ? "bg-red-100 text-red-800 hover:bg-red-200"
-                      : isScheduled
-                      ? "bg-blue-100 text-blue-800 hover:bg-blue-200"
-                      : "bg-gray-100 text-gray-800"
-                  }`}
-                  title={`${lesson.subject_name || "Занятие"}\n${lesson.time_from || ""} ${
-                    isGroup ? "(Групповое)" : "(Индивидуальное)"
-                  }`}
-                >
-                  <div className="flex items-center gap-1">
-                    <Icon
-                      name={isGroup ? "Users" : "User"}
-                      size={10}
-                    />
-                    <span className="truncate">{lesson.time_from?.slice(11, 16) || "—"}</span>
-                  </div>
-                </div>
-              );
-            })}
+          <div className={`text-sm font-medium ${isToday ? "text-white" : "text-foreground"}`}>
+            {day}
           </div>
+          {!isToday && dayLessons.length > 0 && (
+            <div className="absolute bottom-0 flex flex-wrap gap-0.5 justify-center">
+              {dayLessons.map((lesson) => {
+                const isCompleted = lesson.status === 3 && lesson.details?.[0]?.is_attend === 1;
+                const isMissed = lesson.status === 3 && lesson.details?.[0]?.is_attend === 0;
+                const isScheduled = lesson.status === 1;
+
+                return (
+                  <span key={lesson.id} className="text-lg leading-none">
+                    {isScheduled && "🔵"}
+                    {isCompleted && "✅"}
+                    {isMissed && "❌"}
+                  </span>
+                );
+              })}
+            </div>
+          )}
         </div>
       );
     }
@@ -208,40 +192,28 @@ const StudentCabinet = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-secondary/5">
-      <div className="container mx-auto p-4 md:p-8 max-w-7xl">
+      <div className="container mx-auto p-4 md:p-8 max-w-4xl">
         <Card className="mb-6">
           <CardHeader>
             <div className="flex items-center justify-between flex-wrap gap-4">
               <div className="flex items-center gap-4">
-                <Avatar className="w-16 h-16">
-                  <AvatarFallback className="text-lg bg-primary/10 text-primary">
-                    {initials}
+                <Avatar className="w-16 h-16 bg-primary">
+                  <AvatarFallback className="text-lg bg-primary text-primary-foreground">
+                    <Icon name="BookOpen" size={32} />
                   </AvatarFallback>
                 </Avatar>
                 <div>
-                  <CardTitle className="text-2xl">{student.name}</CardTitle>
-                  <div className="flex gap-2 mt-2">
-                    <Badge variant="secondary" className="text-xs">
-                      <Icon name="CheckCircle" size={12} className="mr-1" />
-                      {completedCount} проведено
-                    </Badge>
-                    <Badge variant="destructive" className="text-xs">
-                      <Icon name="XCircle" size={12} className="mr-1" />
-                      {missedCount} пропущено
-                    </Badge>
-                    <Badge variant="default" className="text-xs">
-                      <Icon name="Calendar" size={12} className="mr-1" />
-                      {scheduledCount} запланировано
-                    </Badge>
-                  </div>
+                  <div className="text-2xl font-bold text-primary">LineaSchool</div>
+                  <div className="text-sm text-muted-foreground">Личный кабинет ученика</div>
                 </div>
               </div>
-              <div className="flex items-center gap-2">
-                {getStatusBadge(student.status)}
-                <Button variant="outline" size="sm" onClick={handleLogout}>
-                  <Icon name="LogOut" size={16} className="mr-2" />
-                  Выйти
-                </Button>
+              <div className="flex flex-col items-end gap-1">
+                <div className="text-sm text-muted-foreground">{student.name}</div>
+                <div className="flex items-center gap-2">
+                  {getStatusBadge(student.status)}
+                  <Button variant="ghost" size="sm" onClick={handleLogout}>
+                    <Icon name="LogOut" size={16} />
+                  </Button>
               </div>
             </div>
           </CardHeader>
@@ -250,46 +222,58 @@ const StudentCabinet = () => {
         <Card>
           <CardHeader>
             <div className="flex items-center justify-between">
-              <CardTitle className="capitalize">{monthName}</CardTitle>
+              <CardTitle className="capitalize text-xl">{monthName}</CardTitle>
               <div className="flex gap-2">
-                <Button variant="outline" size="sm" onClick={prevMonth}>
-                  <ChevronLeft size={16} />
+                <Button variant="ghost" size="icon" onClick={prevMonth}>
+                  <Icon name="ChevronLeft" size={20} />
                 </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setCurrentMonth(new Date())}
-                >
-                  Сегодня
-                </Button>
-                <Button variant="outline" size="sm" onClick={nextMonth}>
-                  <ChevronRight size={16} />
+                <Button variant="ghost" size="icon" onClick={nextMonth}>
+                  <Icon name="ChevronRight" size={20} />
                 </Button>
               </div>
             </div>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-7 gap-2 mb-2">
+            <div className="grid grid-cols-7 gap-2 mb-4">
               {["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"].map((day) => (
                 <div key={day} className="text-center text-sm font-medium text-muted-foreground">
                   {day}
                 </div>
               ))}
             </div>
-            <div className="grid grid-cols-7 gap-2">{renderCalendar()}</div>
+            <div className="grid grid-cols-7 gap-2 mb-6">{renderCalendar()}</div>
             
-            <div className="mt-6 flex flex-wrap gap-4 text-sm">
-              <div className="flex items-center gap-2">
-                <div className="w-4 h-4 bg-blue-100 border border-blue-300 rounded"></div>
-                <span>Запланировано</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-4 h-4 bg-green-100 border border-green-300 rounded"></div>
-                <span>Проведено</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-4 h-4 bg-red-100 border border-red-300 rounded"></div>
-                <span>Пропущено</span>
+            <div className="border-t pt-4">
+              <div className="text-sm font-medium mb-3">Обозначения:</div>
+              <div className="grid grid-cols-2 gap-3 text-sm">
+                <div className="flex items-center gap-2">
+                  <span className="text-lg">🔵</span>
+                  <span className="text-muted-foreground">ДЗ запланировано</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-lg">🔴</span>
+                  <span className="text-muted-foreground">Урок запланирован</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-lg">✅</span>
+                  <span className="text-muted-foreground">ДЗ выполнено</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-lg">✅</span>
+                  <span className="text-muted-foreground">Урок посещен</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-lg">🟡</span>
+                  <span className="text-muted-foreground">ДЗ с опозданием</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-lg">❌</span>
+                  <span className="text-muted-foreground">Урок пропущен</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-lg">❌</span>
+                  <span className="text-muted-foreground">ДЗ не выполнено</span>
+                </div>
               </div>
             </div>
           </CardContent>
