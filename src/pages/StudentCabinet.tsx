@@ -59,6 +59,17 @@ const StudentCabinet = () => {
       if (!response.ok) throw new Error("Ошибка загрузки занятий");
       
       const data = await response.json();
+      console.log("Всего занятий:", data.lessons?.length);
+      console.log("Пример занятия:", data.lessons?.[0]);
+      
+      const stats = {
+        total: data.lessons?.length || 0,
+        completed: data.lessons?.filter((l: any) => l.status === 3 && l.details?.[0]?.is_attend === 1).length || 0,
+        missed: data.lessons?.filter((l: any) => l.status === 3 && l.details?.[0]?.is_attend === 0).length || 0,
+        scheduled: data.lessons?.filter((l: any) => l.status === 1).length || 0,
+      };
+      console.log("Статистика:", stats);
+      
       setLessons(data.lessons || []);
     } catch (error) {
       console.error("Ошибка загрузки занятий:", error);
