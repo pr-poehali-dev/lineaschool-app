@@ -138,13 +138,28 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             
             request_data = json.dumps({
                 'branch_id': int(branch_id),
-                'page': 1,
-                'count': 50
+                'page': 0,
+                'count': 100
             }).encode('utf-8')
+            
+            print(f'Requesting students from: {url}')
+            print(f'Request data: {request_data.decode("utf-8")}')
             
             req = Request(url, data=request_data, headers=headers, method='POST')
             with urlopen(req, timeout=15) as response:
-                data = json.loads(response.read().decode('utf-8'))
+                response_text = response.read().decode('utf-8')
+                print(f'Raw response: {response_text[:500]}...')
+                data = json.loads(response_text)
+            
+            print(f'Parsed data keys: {list(data.keys())}')
+            print(f'Items count: {len(data.get("items", []))}')
+            print(f'Total: {data.get("total", 0)}')
+            if data.get('items'):
+                first_item = data["items"][0]
+                print(f'First item keys: {list(first_item.keys())}')
+                print(f'First item id: {first_item.get("id")}')
+                print(f'First item name: {first_item.get("name")}')
+                print(f'First item phone field: {first_item.get("phone", "NOT FOUND")}')
             
             return {
                 'statusCode': 200,
