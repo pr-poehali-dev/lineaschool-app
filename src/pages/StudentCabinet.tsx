@@ -50,19 +50,15 @@ const StudentCabinet = () => {
   const loadLessons = async (studentId: string) => {
     try {
       const response = await fetch(
-        `https://functions.poehali.dev/7a191c3e-5c96-4e00-b7c4-bb0f62c9fdc2?type=lessons`
+        `https://functions.poehali.dev/7a191c3e-5c96-4e00-b7c4-bb0f62c9fdc2?type=lessons&customer_id=${studentId}`
       );
       
       if (!response.ok) throw new Error("Ошибка загрузки занятий");
       
       const data = await response.json();
-      
-      const studentLessons = data.lessons?.filter(
-        (lesson: any) => lesson.customer_ids?.includes(parseInt(studentId))
-      ) || [];
-      
-      setLessons(studentLessons);
+      setLessons(data.lessons || []);
     } catch (error) {
+      console.error("Ошибка загрузки занятий:", error);
       toast({
         title: "Ошибка",
         description: "Не удалось загрузить занятия",
