@@ -56,6 +56,8 @@ const StudentCabinet = () => {
       if (!response.ok) throw new Error("Ошибка загрузки занятий");
       
       const data = await response.json();
+      console.log("Загружено занятий:", data.lessons?.length);
+      console.log("Первое занятие:", data.lessons?.[0]);
       setLessons(data.lessons || []);
     } catch (error) {
       console.error("Ошибка загрузки занятий:", error);
