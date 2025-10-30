@@ -211,11 +211,17 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 'Content-Type': 'application/json'
             }
             
-            request_data = json.dumps({
+            customer_id = params.get('customer_id')
+            request_payload = {
                 'branch_id': int(branch_id),
-                'page': 1,
-                'count': 50
-            }).encode('utf-8')
+                'page': 0,
+                'count': 100
+            }
+            
+            if customer_id:
+                request_payload['customer_id'] = int(customer_id)
+            
+            request_data = json.dumps(request_payload).encode('utf-8')
             
             req = Request(url, data=request_data, headers=headers, method='POST')
             with urlopen(req, timeout=15) as response:
