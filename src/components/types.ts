@@ -14,6 +14,16 @@ export interface Assignment {
   status?: "scheduled" | "attended" | "missed" | "completed" | "completed_late" | "not_completed";
 }
 
+export interface Payment {
+  id: string;
+  studentId: string;
+  amount: number;
+  date: Date;
+  type: "income" | "expense";
+  comment: string;
+  createdBy: string;
+}
+
 export interface Student {
   id: string;
   login: string;
@@ -21,6 +31,7 @@ export interface Student {
   fullName: string;
   role: "student";
   teacherId?: string;
+  balance?: number;
 }
 
 export interface Teacher {

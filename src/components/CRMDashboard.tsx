@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import Icon from "@/components/ui/icon";
-import { Student, Teacher, Assignment } from "./types";
+import { Student, Teacher, Assignment, Payment } from "./types";
 import { format } from "date-fns";
 import { ru } from "date-fns/locale";
 
@@ -32,6 +33,44 @@ const CRMDashboard = ({ students, teachers, assignments, onBack }: CRMDashboardP
   const [searchQuery, setSearchQuery] = useState("");
   const [filterTeacher, setFilterTeacher] = useState<string>("all");
   const [selectedStudent, setSelectedStudent] = useState<StudentWithStats | null>(null);
+  const [showPaymentDialog, setShowPaymentDialog] = useState(false);
+  const [paymentAmount, setPaymentAmount] = useState("");
+  const [paymentType, setPaymentType] = useState<"income" | "expense">("income");
+  const [paymentComment, setPaymentComment] = useState("");
+  const [payments, setPayments] = useState<Payment[]>([]);
+
+  useEffect(() => {
+    const paymentsData = localStorage.getItem("lineaschool_payments");
+    if (paymentsData) {
+      const parsed = JSON.parse(paymentsData).map((p: any) => ({
+        ...p,
+        date: new Date(p.date)
+      }));
+      setPayments(parsed);
+    }
+  }, []);
+
+  const savePayments = (newPayments: Payment[]) => {
+    localStorage.setItem("lineaschool_payments", JSON.stringify(newPayments));
+    setPayments(newPayments);
+  };
+
+  const getStudentBalance = (studentId: string): number => {
+    const studentPayments = payments.filter(p => p.studentId === studentId);
+    return studentPayments.reduce((sum, p) => {
+      return sum + (p.type === "income" ? p.amount : -p.amount);
+    }, 0);
+  };
+
+  const updateStudentBalance = (studentId: string, balance: number) => {
+    const usersData = localStorage.getItem("lineaschool_users");
+    if (!usersData) return;
+    const users = JSON.parse(usersData);
+    const updated = users.map((u: Student) => 
+      u.id === studentId ? { ...u, balance } : u
+    );
+    localStorage.setItem("lineaschool_users", JSON.stringify(updated));
+  };
 
   const getStudentStats = (student: Student): StudentWithStats => {
     const studentAssignments = assignments.filter(a => a.studentId === student.id);
@@ -43,6 +82,7 @@ const CRMDashboard = ({ students, teachers, assignments, onBack }: CRMDashboardP
       .sort((a, b) => a.date.getTime() - b.date.getTime())[0];
 
     const teacher = teachers.find(t => t.id === student.teacherId);
+    const balance = getStudentBalance(student.id);
 
     return {
       ...student,
@@ -53,7 +93,7 @@ const CRMDashboard = ({ students, teachers, assignments, onBack }: CRMDashboardP
       homeworkCompleted: homework.filter(h => h.status === "completed").length,
       homeworkLate: homework.filter(h => h.status === "completed_late").length,
       homeworkMissed: homework.filter(h => h.status === "not_completed").length,
-      balance: Math.floor(Math.random() * 10000) - 5000,
+      balance,
       nextLesson: nextLesson?.date,
       teacher
     };
@@ -68,6 +108,43 @@ const CRMDashboard = ({ students, teachers, assignments, onBack }: CRMDashboardP
       return matchesSearch && matchesTeacher;
     })
     .sort((a, b) => a.fullName.localeCompare(b.fullName));
+
+  const handleAddPayment = () => {
+    if (!selectedStudent || !paymentAmount) return;
+
+    const newPayment: Payment = {
+      id: Date.now().toString(),
+      studentId: selectedStudent.id,
+      amount: parseFloat(paymentAmount),
+      date: new Date(),
+      type: paymentType,
+      comment: paymentComment,
+      createdBy: "admin"
+    };
+
+    const updatedPayments = [...payments, newPayment];
+    savePayments(updatedPayments);
+
+    const newBalance = getStudentBalance(selectedStudent.id) + 
+      (paymentType === "income" ? parseFloat(paymentAmount) : -parseFloat(paymentAmount));
+    updateStudentBalance(selectedStudent.id, newBalance);
+
+    setSelectedStudent({
+      ...selectedStudent,
+      balance: newBalance
+    });
+
+    setShowPaymentDialog(false);
+    setPaymentAmount("");
+    setPaymentComment("");
+    setPaymentType("income");
+  };
+
+  const getStudentPayments = (studentId: string): Payment[] => {
+    return payments
+      .filter(p => p.studentId === studentId)
+      .sort((a, b) => b.date.getTime() - a.date.getTime());
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
@@ -221,6 +298,16 @@ const CRMDashboard = ({ students, teachers, assignments, onBack }: CRMDashboardP
                     >
                       {selectedStudent.balance >= 0 ? "+" : ""}{selectedStudent.balance} ₽
                     </Badge>
+                    <div className="mt-3 space-y-2">
+                      <Button 
+                        onClick={() => setShowPaymentDialog(true)}
+                        className="w-full"
+                        size="sm"
+                      >
+                        <Icon name="Wallet" size={16} className="mr-2" />
+                        Добавить платеж
+                      </Button>
+                    </div>
                   </div>
 
                   {selectedStudent.nextLesson && (
@@ -301,6 +388,48 @@ const CRMDashboard = ({ students, teachers, assignments, onBack }: CRMDashboardP
                 </div>
 
                 <Card className="p-6 shadow-lg border-0 bg-white">
+                  <h3 className="font-semibold text-lg mb-4 text-secondary">История платежей</h3>
+                  <div className="space-y-3 max-h-64 overflow-y-auto">
+                    {getStudentPayments(selectedStudent.id).length > 0 ? (
+                      getStudentPayments(selectedStudent.id).map((payment) => (
+                        <div key={payment.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                          <div className="flex items-center gap-3">
+                            <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                              payment.type === "income" ? "bg-green-100" : "bg-red-100"
+                            }`}>
+                              <Icon 
+                                name={payment.type === "income" ? "ArrowDownCircle" : "ArrowUpCircle"} 
+                                size={16} 
+                                className={payment.type === "income" ? "text-green-600" : "text-red-600"}
+                              />
+                            </div>
+                            <div>
+                              <div className="font-medium text-sm">
+                                {payment.type === "income" ? "Пополнение" : "Списание"}
+                              </div>
+                              <div className="text-xs text-muted-foreground">
+                                {format(payment.date, "d MMMM yyyy, HH:mm", { locale: ru })}
+                              </div>
+                              {payment.comment && (
+                                <div className="text-xs text-muted-foreground italic">{payment.comment}</div>
+                              )}
+                            </div>
+                          </div>
+                          <Badge variant={payment.type === "income" ? "default" : "destructive"}>
+                            {payment.type === "income" ? "+" : "-"}{payment.amount} ₽
+                          </Badge>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="text-center py-8 text-muted-foreground">
+                        <Icon name="Wallet" size={48} className="mx-auto mb-2 opacity-30" />
+                        <p>Платежи отсутствуют</p>
+                      </div>
+                    )}
+                  </div>
+                </Card>
+
+                <Card className="p-6 shadow-lg border-0 bg-white">
                   <h3 className="font-semibold text-lg mb-4 text-secondary">История занятий</h3>
                   <div className="space-y-3 max-h-96 overflow-y-auto">
                     {assignments
@@ -344,6 +473,83 @@ const CRMDashboard = ({ students, teachers, assignments, onBack }: CRMDashboardP
                 </Card>
               </div>
             </div>
+          </div>
+        )}
+
+        {showPaymentDialog && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+            <Card className="p-6 max-w-md w-full bg-white">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold">Добавить платеж</h3>
+                <Button 
+                  variant="ghost" 
+                  size="sm"
+                  onClick={() => {
+                    setShowPaymentDialog(false);
+                    setPaymentAmount("");
+                    setPaymentComment("");
+                  }}
+                >
+                  <Icon name="X" size={20} />
+                </Button>
+              </div>
+
+              <div className="space-y-4">
+                <div>
+                  <Label>Тип операции</Label>
+                  <div className="grid grid-cols-2 gap-2 mt-2">
+                    <Button
+                      variant={paymentType === "income" ? "default" : "outline"}
+                      onClick={() => setPaymentType("income")}
+                      className="w-full"
+                    >
+                      <Icon name="ArrowDownCircle" size={16} className="mr-2" />
+                      Пополнение
+                    </Button>
+                    <Button
+                      variant={paymentType === "expense" ? "destructive" : "outline"}
+                      onClick={() => setPaymentType("expense")}
+                      className="w-full"
+                    >
+                      <Icon name="ArrowUpCircle" size={16} className="mr-2" />
+                      Списание
+                    </Button>
+                  </div>
+                </div>
+
+                <div>
+                  <Label htmlFor="amount">Сумма (₽)</Label>
+                  <Input
+                    id="amount"
+                    type="number"
+                    value={paymentAmount}
+                    onChange={(e) => setPaymentAmount(e.target.value)}
+                    placeholder="Введите сумму"
+                    className="mt-2"
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="comment">Комментарий</Label>
+                  <Input
+                    id="comment"
+                    value={paymentComment}
+                    onChange={(e) => setPaymentComment(e.target.value)}
+                    placeholder="Например: Оплата за октябрь"
+                    className="mt-2"
+                  />
+                </div>
+
+                <Button 
+                  onClick={handleAddPayment}
+                  disabled={!paymentAmount}
+                  className="w-full"
+                >
+                  <Icon name="Check" size={16} className="mr-2" />
+                  Добавить платеж
+                </Button>
+              </div>
+            </Card>
           </div>
         )}
       </div>
