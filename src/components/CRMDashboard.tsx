@@ -41,6 +41,23 @@ const CRMDashboard = ({ students, teachers, assignments, onBack }: CRMDashboardP
       }));
       setPayments(parsed);
     }
+
+    const syncWithAlfaCRM = async () => {
+      try {
+        const response = await fetch('https://functions.poehali.dev/ff6e4964-b0a6-4754-a939-342ee35193d4');
+        if (response.ok) {
+          console.log('Синхронизация с AlfaCRM выполнена');
+          setRefreshKey(prev => prev + 1);
+        }
+      } catch (error) {
+        console.error('Ошибка синхронизации:', error);
+      }
+    };
+
+    syncWithAlfaCRM();
+    const interval = setInterval(syncWithAlfaCRM, 5 * 60 * 1000);
+
+    return () => clearInterval(interval);
   }, []);
 
   const savePayments = (newPayments: Payment[]) => {
