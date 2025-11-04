@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -7,6 +8,7 @@ import AppHeader from "./AppHeader";
 import AppNavigation from "./AppNavigation";
 import UserManagement from "./UserManagement";
 import AssignmentManager from "./AssignmentManager";
+import CRMDashboard from "./CRMDashboard";
 import { Assignment } from "./types";
 
 interface AdminDashboardProps {
@@ -34,9 +36,31 @@ const AdminDashboard = ({
   onAddTeacher,
   onAddAssignment
 }: AdminDashboardProps) => {
+  const [showCRM, setShowCRM] = useState(false);
+
   const getStudentCount = (teacherId: string) => {
     return students.filter(s => s.teacherId === teacherId).length;
   };
+
+  const getAllAssignments = (): Assignment[] => {
+    const assignmentsData = localStorage.getItem("lineaschool_assignments_v7");
+    if (!assignmentsData) return [];
+    return JSON.parse(assignmentsData).map((a: any) => ({
+      ...a,
+      date: new Date(a.date)
+    }));
+  };
+
+  if (showCRM) {
+    return (
+      <CRMDashboard
+        students={students}
+        teachers={teachers}
+        assignments={getAllAssignments()}
+        onBack={() => setShowCRM(false)}
+      />
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
@@ -49,6 +73,17 @@ const AdminDashboard = ({
 
         {activeTab === "calendar" && (
           <div className="p-6 space-y-6">
+            <div className="mb-4">
+              <Button 
+                onClick={() => setShowCRM(true)}
+                className="w-full"
+                size="lg"
+              >
+                <Icon name="LayoutDashboard" size={20} className="mr-2" />
+                Открыть CRM-систему
+              </Button>
+            </div>
+
             <div className="flex items-center justify-between">
               <h2 className="text-xl font-semibold text-secondary">Педагоги</h2>
               <Button size="sm" onClick={() => setActiveTab("admin")}>
