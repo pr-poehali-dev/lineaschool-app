@@ -104,9 +104,13 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             name = student.get('name', '').replace("'", "''")
             student_id = str(student.get('id', '')).replace("'", "''")
             
-            if not phone or not name:
+            if not name:
                 skipped += 1
+                errors.append(f"Пропущен ученик без имени (ID: {student_id})")
                 continue
+            
+            if not phone:
+                phone = f'nophone_{student_id}'
             
             try:
                 # Check if student exists (simple query)
@@ -128,7 +132,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     cur.execute(query)
                 synced += 1
             except Exception as e:
-                errors.append(f"Student {name}: {str(e)}")
+                errors.append(f"Ученик {name}: {str(e)}")
                 skipped += 1
         
         conn.commit()
