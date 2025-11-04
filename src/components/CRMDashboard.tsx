@@ -11,6 +11,9 @@ import StudentProfile from "./CRM/StudentProfile";
 import StudentStats from "./CRM/StudentStats";
 import PaymentHistory from "./CRM/PaymentHistory";
 import AssignmentHistory from "./CRM/AssignmentHistory";
+import LessonCalendar from "./CRM/LessonCalendar";
+import StudentInfoCard from "./CRM/StudentInfoCard";
+import SubscriptionsCard from "./CRM/SubscriptionsCard";
 
 interface CRMDashboardProps {
   students: Student[];
@@ -248,12 +251,16 @@ const CRMDashboard = ({ students, teachers, assignments, onBack }: CRMDashboardP
             </Button>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              <StudentProfile
-                student={selectedStudent}
-                onAddPayment={() => setShowPaymentDialog(true)}
-              />
+              <div className="space-y-6">
+                <StudentInfoCard student={selectedStudent} />
+                <SubscriptionsCard studentId={selectedStudent.id} />
+              </div>
 
               <div className="lg:col-span-2 space-y-6">
+                <LessonCalendar 
+                  lessons={assignments}
+                  studentId={selectedStudent.id}
+                />
                 <StudentStats student={selectedStudent} />
                 <PaymentHistory payments={getStudentPayments(selectedStudent.id)} />
                 <AssignmentHistory assignments={getStudentAssignments(selectedStudent.id)} />
