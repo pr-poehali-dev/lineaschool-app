@@ -20,6 +20,8 @@ interface CRMDashboardProps {
 }
 
 const CRMDashboard = ({ students, teachers, assignments, onBack }: CRMDashboardProps) => {
+  console.log('CRM получил данные:', { students: students.length, teachers: teachers.length, assignments: assignments.length });
+  
   const [searchQuery, setSearchQuery] = useState("");
   const [filterTeacher, setFilterTeacher] = useState<string>("all");
   const [selectedStudent, setSelectedStudent] = useState<StudentWithStats | null>(null);

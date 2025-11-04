@@ -52,11 +52,18 @@ const AdminDashboard = ({
   };
 
   if (showCRM) {
+    const allAssignments = getAllAssignments();
+    console.log('AdminDashboard передает в CRM:', { 
+      students: students.length, 
+      teachers: teachers.length, 
+      assignments: allAssignments.length 
+    });
+    
     return (
       <CRMDashboard
         students={students}
         teachers={teachers}
-        assignments={getAllAssignments()}
+        assignments={allAssignments}
         onBack={() => setShowCRM(false)}
       />
     );
