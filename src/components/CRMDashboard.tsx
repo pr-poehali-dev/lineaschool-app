@@ -37,29 +37,33 @@ const CRMDashboard = ({ students, teachers, assignments, onBack }: CRMDashboardP
   const [dbTeachers, setDbTeachers] = useState<any[]>([]);
 
   useEffect(() => {
-    const syncData = async () => {
+    const loadData = async () => {
       try {
         setIsLoading(true);
         
-        const syncResult = await syncWithAlfaCRM();
-        
-        console.log('Синхронизация завершена:', syncResult.stats);
+        try {
+          const syncResult = await syncWithAlfaCRM();
+          console.log('Синхронизация завершена:', syncResult.stats);
+          
+          if (syncResult.stats.students_added > 0 || syncResult.stats.teachers_added > 0) {
+            toast({
+              title: "Данные синхронизированы",
+              description: `Добавлено: ${syncResult.stats.students_added} учеников, ${syncResult.stats.teachers_added} педагогов`
+            });
+          }
+        } catch (syncError) {
+          console.log('AlfaCRM недоступен, загружаем данные из базы');
+        }
         
         const data = await getDataFromDatabase();
         setDbStudents(data.students);
         setDbTeachers(data.teachers);
         
-        if (syncResult.stats.students_added > 0 || syncResult.stats.teachers_added > 0) {
-          toast({
-            title: "Данные синхронизированы",
-            description: `Добавлено: ${syncResult.stats.students_added} учеников, ${syncResult.stats.teachers_added} педагогов`
-          });
-        }
       } catch (error) {
-        console.error('Ошибка синхронизации:', error);
+        console.error('Ошибка загрузки данных:', error);
         toast({
-          title: "Ошибка синхронизации",
-          description: "Не удалось загрузить данные из AlfaCRM",
+          title: "Ошибка загрузки",
+          description: "Не удалось загрузить данные",
           variant: "destructive"
         });
       } finally {
@@ -67,7 +71,7 @@ const CRMDashboard = ({ students, teachers, assignments, onBack }: CRMDashboardP
       }
     };
     
-    syncData();
+    loadData();
   }, [toast]);
 
   useEffect(() => {
