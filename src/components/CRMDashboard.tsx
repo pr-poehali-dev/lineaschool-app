@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import Icon from "@/components/ui/icon";
-import { useToast } from "@/hooks/use-toast";
 import { Student, Teacher, Assignment, Payment } from "./types";
 import StudentCard, { StudentWithStats } from "./CRM/StudentCard";
 import PaymentDialog from "./CRM/PaymentDialog";
@@ -12,7 +11,6 @@ import StudentProfile from "./CRM/StudentProfile";
 import StudentStats from "./CRM/StudentStats";
 import PaymentHistory from "./CRM/PaymentHistory";
 import AssignmentHistory from "./CRM/AssignmentHistory";
-import { syncWithAlfaCRM, getDataFromDatabase } from "@/utils/alfacrm-sync";
 
 interface CRMDashboardProps {
   students: Student[];
@@ -22,7 +20,6 @@ interface CRMDashboardProps {
 }
 
 const CRMDashboard = ({ students, teachers, assignments, onBack }: CRMDashboardProps) => {
-  const { toast } = useToast();
   const [searchQuery, setSearchQuery] = useState("");
   const [filterTeacher, setFilterTeacher] = useState<string>("all");
   const [selectedStudent, setSelectedStudent] = useState<StudentWithStats | null>(null);
@@ -32,47 +29,6 @@ const CRMDashboard = ({ students, teachers, assignments, onBack }: CRMDashboardP
   const [paymentComment, setPaymentComment] = useState("");
   const [payments, setPayments] = useState<Payment[]>([]);
   const [refreshKey, setRefreshKey] = useState(0);
-  const [isLoading, setIsLoading] = useState(true);
-  const [dbStudents, setDbStudents] = useState<any[]>([]);
-  const [dbTeachers, setDbTeachers] = useState<any[]>([]);
-
-  useEffect(() => {
-    const loadData = async () => {
-      try {
-        setIsLoading(true);
-        
-        try {
-          const syncResult = await syncWithAlfaCRM();
-          console.log('Синхронизация завершена:', syncResult.stats);
-          
-          if (syncResult.stats.students_added > 0 || syncResult.stats.teachers_added > 0) {
-            toast({
-              title: "Данные синхронизированы",
-              description: `Добавлено: ${syncResult.stats.students_added} учеников, ${syncResult.stats.teachers_added} педагогов`
-            });
-          }
-        } catch (syncError) {
-          console.log('AlfaCRM недоступен, загружаем данные из базы');
-        }
-        
-        const data = await getDataFromDatabase();
-        setDbStudents(data.students);
-        setDbTeachers(data.teachers);
-        
-      } catch (error) {
-        console.error('Ошибка загрузки данных:', error);
-        toast({
-          title: "Ошибка загрузки",
-          description: "Не удалось загрузить данные",
-          variant: "destructive"
-        });
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    
-    loadData();
-  }, [toast]);
 
   useEffect(() => {
     const paymentsData = localStorage.getItem("lineaschool_payments");
@@ -194,17 +150,7 @@ const CRMDashboard = ({ students, teachers, assignments, onBack }: CRMDashboardP
       .slice(0, 20);
   };
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center">
-        <Card className="p-8 text-center">
-          <Icon name="Loader2" size={48} className="mx-auto mb-4 animate-spin text-primary" />
-          <h2 className="text-xl font-semibold mb-2">Синхронизация с AlfaCRM</h2>
-          <p className="text-muted-foreground">Загружаем данные учеников и педагогов...</p>
-        </Card>
-      </div>
-    );
-  }
+
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
@@ -222,11 +168,11 @@ const CRMDashboard = ({ students, teachers, assignments, onBack }: CRMDashboardP
           <div className="flex gap-2">
             <Badge variant="secondary" className="text-lg px-4 py-2">
               <Icon name="Users" size={18} className="mr-2" />
-              {dbStudents.length} учеников
+              {students.length} учеников
             </Badge>
             <Badge variant="secondary" className="text-lg px-4 py-2">
               <Icon name="GraduationCap" size={18} className="mr-2" />
-              {dbTeachers.length} педагогов
+              {teachers.length} педагогов
             </Badge>
           </div>
         </div>
