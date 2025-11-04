@@ -11,7 +11,6 @@ import StudentProfile from "./CRM/StudentProfile";
 import StudentStats from "./CRM/StudentStats";
 import PaymentHistory from "./CRM/PaymentHistory";
 import AssignmentHistory from "./CRM/AssignmentHistory";
-import ImportData from "./CRM/ImportData";
 
 interface CRMDashboardProps {
   students: Student[];
@@ -25,7 +24,6 @@ const CRMDashboard = ({ students, teachers, assignments, onBack }: CRMDashboardP
   const [filterTeacher, setFilterTeacher] = useState<string>("all");
   const [selectedStudent, setSelectedStudent] = useState<StudentWithStats | null>(null);
   const [showPaymentDialog, setShowPaymentDialog] = useState(false);
-  const [showImportDialog, setShowImportDialog] = useState(false);
   const [paymentAmount, setPaymentAmount] = useState("");
   const [paymentType, setPaymentType] = useState<"income" | "expense">("income");
   const [paymentComment, setPaymentComment] = useState("");
@@ -166,14 +164,6 @@ const CRMDashboard = ({ students, teachers, assignments, onBack }: CRMDashboardP
             </div>
           </div>
           <div className="flex gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setShowImportDialog(true)}
-            >
-              <Icon name="Upload" size={16} className="mr-2" />
-              Импорт из AlfaCRM
-            </Button>
             <Badge variant="secondary" className="text-lg px-4 py-2">
               <Icon name="Users" size={18} className="mr-2" />
               {students.length} учеников
@@ -261,16 +251,6 @@ const CRMDashboard = ({ students, teachers, assignments, onBack }: CRMDashboardP
           onSubmit={handleAddPayment}
           onClose={handleClosePaymentDialog}
         />
-
-        {showImportDialog && (
-          <ImportData
-            onImportComplete={() => {
-              setRefreshKey(prev => prev + 1);
-              window.location.reload();
-            }}
-            onClose={() => setShowImportDialog(false)}
-          />
-        )}
       </div>
     </div>
   );

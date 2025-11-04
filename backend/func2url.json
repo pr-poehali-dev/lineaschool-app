@@ -1,4 +1,6 @@
 {
+  "get-students": "https://functions.poehali.dev/649662ee-a259-46cb-a494-a090f9842573",
+  "alfacrm-sync": "https://functions.poehali.dev/ff6e4964-b0a6-4754-a939-342ee35193d4",
   "sync-students": "https://functions.poehali.dev/7ef3480a-587f-492d-a8fa-27a1c0056429",
   "alfacrm": "https://functions.poehali.dev/7a191c3e-5c96-4e00-b7c4-bb0f62c9fdc2"
 }
