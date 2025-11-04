@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import Icon from "@/components/ui/icon";
+import { useToast } from "@/hooks/use-toast";
 import { Student, Teacher, Assignment, Payment } from "./types";
 import StudentCard, { StudentWithStats } from "./CRM/StudentCard";
 import PaymentDialog from "./CRM/PaymentDialog";
@@ -11,6 +12,7 @@ import StudentProfile from "./CRM/StudentProfile";
 import StudentStats from "./CRM/StudentStats";
 import PaymentHistory from "./CRM/PaymentHistory";
 import AssignmentHistory from "./CRM/AssignmentHistory";
+import { syncWithAlfaCRM, getDataFromDatabase } from "@/utils/alfacrm-sync";
 
 interface CRMDashboardProps {
   students: Student[];
@@ -20,6 +22,7 @@ interface CRMDashboardProps {
 }
 
 const CRMDashboard = ({ students, teachers, assignments, onBack }: CRMDashboardProps) => {
+  const { toast } = useToast();
   const [searchQuery, setSearchQuery] = useState("");
   const [filterTeacher, setFilterTeacher] = useState<string>("all");
   const [selectedStudent, setSelectedStudent] = useState<StudentWithStats | null>(null);
@@ -29,6 +32,43 @@ const CRMDashboard = ({ students, teachers, assignments, onBack }: CRMDashboardP
   const [paymentComment, setPaymentComment] = useState("");
   const [payments, setPayments] = useState<Payment[]>([]);
   const [refreshKey, setRefreshKey] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
+  const [dbStudents, setDbStudents] = useState<any[]>([]);
+  const [dbTeachers, setDbTeachers] = useState<any[]>([]);
+
+  useEffect(() => {
+    const syncData = async () => {
+      try {
+        setIsLoading(true);
+        
+        const syncResult = await syncWithAlfaCRM();
+        
+        console.log('Синхронизация завершена:', syncResult.stats);
+        
+        const data = await getDataFromDatabase();
+        setDbStudents(data.students);
+        setDbTeachers(data.teachers);
+        
+        if (syncResult.stats.students_added > 0 || syncResult.stats.teachers_added > 0) {
+          toast({
+            title: "Данные синхронизированы",
+            description: `Добавлено: ${syncResult.stats.students_added} учеников, ${syncResult.stats.teachers_added} педагогов`
+          });
+        }
+      } catch (error) {
+        console.error('Ошибка синхронизации:', error);
+        toast({
+          title: "Ошибка синхронизации",
+          description: "Не удалось загрузить данные из AlfaCRM",
+          variant: "destructive"
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    syncData();
+  }, [toast]);
 
   useEffect(() => {
     const paymentsData = localStorage.getItem("lineaschool_payments");
@@ -150,6 +190,18 @@ const CRMDashboard = ({ students, teachers, assignments, onBack }: CRMDashboardP
       .slice(0, 20);
   };
 
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center">
+        <Card className="p-8 text-center">
+          <Icon name="Loader2" size={48} className="mx-auto mb-4 animate-spin text-primary" />
+          <h2 className="text-xl font-semibold mb-2">Синхронизация с AlfaCRM</h2>
+          <p className="text-muted-foreground">Загружаем данные учеников и педагогов...</p>
+        </Card>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
       <div className="max-w-7xl mx-auto p-6">
@@ -166,11 +218,11 @@ const CRMDashboard = ({ students, teachers, assignments, onBack }: CRMDashboardP
           <div className="flex gap-2">
             <Badge variant="secondary" className="text-lg px-4 py-2">
               <Icon name="Users" size={18} className="mr-2" />
-              {students.length} учеников
+              {dbStudents.length} учеников
             </Badge>
             <Badge variant="secondary" className="text-lg px-4 py-2">
               <Icon name="GraduationCap" size={18} className="mr-2" />
-              {teachers.length} педагогов
+              {dbTeachers.length} педагогов
             </Badge>
           </div>
         </div>
