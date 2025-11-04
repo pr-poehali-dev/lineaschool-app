@@ -24,10 +24,16 @@ def fetch_students(domain: str, branch_id: int, auth_token: str) -> List[Dict[st
     '''Fetch all students from AlfaCRM'''
     url = f'https://{domain}/v2api/customer/index'
     headers = {'X-ALFACRM-TOKEN': auth_token, 'Content-Type': 'application/json'}
-    request_data = json.dumps({'branch_id': branch_id, 'page': 1, 'count': 1000}).encode('utf-8')
+    request_data = json.dumps({
+        'branch_id': branch_id, 
+        'page': 0, 
+        'count': 1000,
+        'is_study': 1
+    }).encode('utf-8')
     req = Request(url, data=request_data, headers=headers, method='POST')
     with urlopen(req, timeout=15) as response:
         data = json.loads(response.read().decode('utf-8'))
+        print(f'📄 Ответ API: total={data.get("total", 0)}, items={len(data.get("items", []))}')
     return data.get('items', [])
 
 def normalize_phone(phone: str) -> str:
