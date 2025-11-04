@@ -20,6 +20,8 @@ const Index = () => {
   const [activeTab, setActiveTab] = useState<"calendar" | "homework" | "profile" | "admin">("calendar");
   const [selectedHomework, setSelectedHomework] = useState<Assignment | null>(null);
   const [homeworkAnswer, setHomeworkAnswer] = useState("");
+  const [students, setStudents] = useState<Student[]>([]);
+  const [teachers, setTeachers] = useState<Teacher[]>([]);
 
   useEffect(() => {
     const savedUser = localStorage.getItem("lineaschool_current_user");
@@ -136,27 +138,22 @@ const Index = () => {
     setSelectedStudent(null);
   };
 
-  const getStudents = async (): Promise<Student[]> => {
+  const loadStudents = async () => {
     try {
       const response = await fetch('https://functions.poehali.dev/649662ee-a259-46cb-a494-a090f9842573');
       const data = await response.json();
-      return data.students || [];
+      setStudents(data.students || []);
+      setTeachers(data.teachers || []);
     } catch (error) {
-      console.error('Ошибка загрузки учеников:', error);
-      return [];
+      console.error('Ошибка загрузки данных:', error);
     }
   };
 
-  const getTeachers = async (): Promise<Teacher[]> => {
-    try {
-      const response = await fetch('https://functions.poehali.dev/649662ee-a259-46cb-a494-a090f9842573');
-      const data = await response.json();
-      return data.teachers || [];
-    } catch (error) {
-      console.error('Ошибка загрузки педагогов:', error);
-      return [];
+  useEffect(() => {
+    if (user && user.role === 'admin') {
+      loadStudents();
     }
-  };
+  }, [user]);
 
   const getMyStudents = (): Student[] => {
     if (!user || user.role !== "teacher") return [];
@@ -250,9 +247,6 @@ const Index = () => {
   }
 
   if (user.role === "admin" && !selectedStudent) {
-    const students = getStudents();
-    const teachers = getTeachers();
-    
     return (
       <AdminDashboard
         user={user}
