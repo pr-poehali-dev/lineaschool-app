@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -37,9 +37,37 @@ const AdminDashboard = ({
   onAddAssignment
 }: AdminDashboardProps) => {
   const [showCRM, setShowCRM] = useState(false);
+  const [dbStudents, setDbStudents] = useState<any[]>([]);
+  const [dbTeachers, setDbTeachers] = useState<any[]>([]);
+  const [dbAssignments, setDbAssignments] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
 
   const getStudentCount = (teacherId: string) => {
     return students.filter(s => s.teacherId === teacherId).length;
+  };
+
+  useEffect(() => {
+    if (showCRM) {
+      loadDataFromDB();
+    }
+  }, [showCRM]);
+
+  const loadDataFromDB = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch('https://functions.poehali.dev/649662ee-a259-46cb-a494-a090f9842573');
+      const data = await response.json();
+      
+      console.log('Данные из БД:', data);
+      
+      setDbStudents(data.students || []);
+      setDbTeachers(data.teachers || []);
+      setDbAssignments(data.assignments || []);
+    } catch (error) {
+      console.error('Ошибка загрузки данных:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const getAllAssignments = (): Assignment[] => {
@@ -52,18 +80,45 @@ const AdminDashboard = ({
   };
 
   if (showCRM) {
-    const allAssignments = getAllAssignments();
-    console.log('AdminDashboard передает в CRM:', { 
-      students: students.length, 
-      teachers: teachers.length, 
-      assignments: allAssignments.length 
+    if (loading) {
+      return (
+        <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center">
+          <Card className="p-8 text-center">
+            <Icon name="Loader2" size={48} className="mx-auto mb-4 animate-spin text-primary" />
+            <h2 className="text-xl font-semibold mb-2">Загрузка данных</h2>
+            <p className="text-muted-foreground">Получаем учеников из AlfaCRM...</p>
+          </Card>
+        </div>
+      );
+    }
+
+    const crmStudents = dbStudents.map((s: any) => ({
+      id: String(s.id),
+      login: s.email || '',
+      fullName: s.full_name,
+      role: 'student' as const,
+      teacherId: s.teacher_id ? String(s.teacher_id) : undefined,
+      balance: s.balance || 0
+    }));
+
+    const crmTeachers = dbTeachers.map((t: any) => ({
+      id: String(t.id),
+      login: t.email || '',
+      fullName: t.full_name,
+      role: 'teacher' as const
+    }));
+    
+    console.log('CRM данные:', { 
+      students: crmStudents.length, 
+      teachers: crmTeachers.length, 
+      assignments: dbAssignments.length 
     });
     
     return (
       <CRMDashboard
-        students={students}
-        teachers={teachers}
-        assignments={allAssignments}
+        students={crmStudents}
+        teachers={crmTeachers}
+        assignments={dbAssignments}
         onBack={() => setShowCRM(false)}
       />
     );
