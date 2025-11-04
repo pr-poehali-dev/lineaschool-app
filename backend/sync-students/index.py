@@ -75,8 +75,13 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     conn = None
     try:
         # Get auth token and fetch students
+        print(f'🔑 Авторизация в AlfaCRM: {domain}, email: {email}')
         auth_token = get_auth_token(domain, email, api_key)
+        print(f'✅ Получен токен: {auth_token[:20]}...')
+        
+        print(f'📥 Запрос учеников для филиала {branch_id}')
         students = fetch_students(domain, int(branch_id), auth_token)
+        print(f'📊 Получено учеников из AlfaCRM: {len(students)}')
         
         # Connect to database (use simple query protocol only)
         conn = psycopg2.connect(db_dsn)
@@ -136,10 +141,18 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         }
     
     except Exception as e:
+        error_msg = str(e)
+        print(f'❌ Ошибка синхронизации: {error_msg}')
         return {
             'statusCode': 500,
             'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-            'body': json.dumps({'error': str(e)})
+            'body': json.dumps({
+                'success': False,
+                'error': error_msg,
+                'synced': 0,
+                'skipped': 0,
+                'total_students': 0
+            })
         }
     finally:
         if conn:
