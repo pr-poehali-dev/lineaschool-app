@@ -11,7 +11,7 @@ import StudentProfile from "./CRM/StudentProfile";
 import StudentStats from "./CRM/StudentStats";
 import PaymentHistory from "./CRM/PaymentHistory";
 import AssignmentHistory from "./CRM/AssignmentHistory";
-import LessonCalendar from "./CRM/LessonCalendar";
+import LessonsList from "./CRM/LessonsList";
 import StudentInfoCard from "./CRM/StudentInfoCard";
 import SubscriptionsCard from "./CRM/SubscriptionsCard";
 
@@ -257,7 +257,7 @@ const CRMDashboard = ({ students, teachers, assignments, onBack }: CRMDashboardP
               </div>
 
               <div className="lg:col-span-2 space-y-6">
-                <LessonCalendar 
+                <LessonsList 
                   lessons={assignments}
                   studentId={selectedStudent.id}
                 />
