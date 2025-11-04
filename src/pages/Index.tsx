@@ -136,18 +136,26 @@ const Index = () => {
     setSelectedStudent(null);
   };
 
-  const getStudents = (): Student[] => {
-    const usersData = localStorage.getItem("lineaschool_users");
-    if (!usersData) return [];
-    const users = JSON.parse(usersData);
-    return users.filter((u: Student) => u.role === "student");
+  const getStudents = async (): Promise<Student[]> => {
+    try {
+      const response = await fetch('https://functions.poehali.dev/649662ee-a259-46cb-a494-a090f9842573');
+      const data = await response.json();
+      return data.students || [];
+    } catch (error) {
+      console.error('Ошибка загрузки учеников:', error);
+      return [];
+    }
   };
 
-  const getTeachers = (): Teacher[] => {
-    const usersData = localStorage.getItem("lineaschool_users");
-    if (!usersData) return [];
-    const users = JSON.parse(usersData);
-    return users.filter((u: Teacher) => u.role === "teacher");
+  const getTeachers = async (): Promise<Teacher[]> => {
+    try {
+      const response = await fetch('https://functions.poehali.dev/649662ee-a259-46cb-a494-a090f9842573');
+      const data = await response.json();
+      return data.teachers || [];
+    } catch (error) {
+      console.error('Ошибка загрузки педагогов:', error);
+      return [];
+    }
   };
 
   const getMyStudents = (): Student[] => {

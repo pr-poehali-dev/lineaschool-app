@@ -94,17 +94,17 @@ const AdminDashboard = ({
 
     const crmStudents = dbStudents.map((s: any) => ({
       id: String(s.id),
-      login: s.email || '',
-      fullName: s.full_name,
+      login: s.login || s.phone || '',
+      fullName: s.fullName,
       role: 'student' as const,
-      teacherId: s.teacher_id ? String(s.teacher_id) : undefined,
+      teacherId: s.teacherId ? String(s.teacherId) : undefined,
       balance: s.balance || 0
     }));
 
     const crmTeachers = dbTeachers.map((t: any) => ({
       id: String(t.id),
-      login: t.email || '',
-      fullName: t.full_name,
+      login: t.login || t.phone || '',
+      fullName: t.fullName,
       role: 'teacher' as const
     }));
     

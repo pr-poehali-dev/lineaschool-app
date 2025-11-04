@@ -9,7 +9,6 @@ import json
 import os
 from typing import Dict, Any
 import psycopg2
-from psycopg2.extras import RealDictCursor
 
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     method: str = event.get('httpMethod', 'GET')
@@ -37,40 +36,42 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             }
         
         conn = psycopg2.connect(database_url)
-        cursor = conn.cursor(cursor_factory=RealDictCursor)
+        cur = conn.cursor()
         
         # Получение учеников
-        cursor.execute('SELECT * FROM students ORDER BY full_name')
-        students = [dict(row) for row in cursor.fetchall()]
+        query = "SELECT id, login, full_name, role, phone FROM t_p720035_lineaschool_app.users WHERE role = 'student' ORDER BY full_name"
+        cur.execute(query)
+        students_raw = cur.fetchall()
+        students = []
+        for row in students_raw:
+            students.append({
+                'id': str(row[0]),
+                'login': row[1],
+                'fullName': row[2],
+                'role': row[3],
+                'phone': row[4] or '',
+                'teacherId': '',
+                'balance': 0
+            })
         
         # Получение педагогов
-        cursor.execute('SELECT * FROM teachers ORDER BY full_name')
-        teachers = [dict(row) for row in cursor.fetchall()]
+        query = "SELECT id, login, full_name, role, phone FROM t_p720035_lineaschool_app.users WHERE role = 'teacher' ORDER BY full_name"
+        cur.execute(query)
+        teachers_raw = cur.fetchall()
+        teachers = []
+        for row in teachers_raw:
+            teachers.append({
+                'id': str(row[0]),
+                'login': row[1],
+                'fullName': row[2],
+                'role': row[3],
+                'phone': row[4] or ''
+            })
         
-        # Получение назначений
-        cursor.execute('SELECT * FROM assignments ORDER BY assigned_at DESC')
-        assignments = [dict(row) for row in cursor.fetchall()]
+        # Пока возвращаем пустой массив для назначений
+        assignments = []
         
-        # Конвертация datetime в строки
-        for student in students:
-            if 'created_at' in student and student['created_at']:
-                student['created_at'] = student['created_at'].isoformat()
-            if 'updated_at' in student and student['updated_at']:
-                student['updated_at'] = student['updated_at'].isoformat()
-            if 'balance' in student and student['balance']:
-                student['balance'] = float(student['balance'])
-        
-        for teacher in teachers:
-            if 'created_at' in teacher and teacher['created_at']:
-                teacher['created_at'] = teacher['created_at'].isoformat()
-            if 'updated_at' in teacher and teacher['updated_at']:
-                teacher['updated_at'] = teacher['updated_at'].isoformat()
-        
-        for assignment in assignments:
-            if 'assigned_at' in assignment and assignment['assigned_at']:
-                assignment['assigned_at'] = assignment['assigned_at'].isoformat()
-        
-        cursor.close()
+        cur.close()
         conn.close()
         
         return {
