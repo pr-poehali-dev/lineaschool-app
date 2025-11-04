@@ -11,8 +11,12 @@ export interface StudentWithStats {
   balance: number;
   lessonsTotal: number;
   lessonsAttended: number;
+  lessonsMissed: number;
+  lessonsPaid: number;
   homeworkTotal: number;
   homeworkCompleted: number;
+  homeworkLate: number;
+  homeworkMissed: number;
   nextLesson?: Date;
   teacher?: {
     id: string;
@@ -62,19 +66,26 @@ const StudentCard = ({ student, onClick }: StudentCardProps) => {
         </div>
       )}
 
-      <div className="grid grid-cols-2 gap-3 pt-3 border-t">
+      <div className="grid grid-cols-3 gap-3 pt-3 border-t">
         <div>
-          <div className="text-xs text-muted-foreground mb-1">Уроки</div>
-          <div className="flex items-center gap-2">
+          <div className="text-xs text-muted-foreground mb-1">Проведено</div>
+          <div className="flex items-center gap-1">
+            <Icon name="CheckCircle2" size={14} className="text-green-600" />
             <span className="text-sm font-semibold text-green-600">{student.lessonsAttended}</span>
-            <span className="text-xs text-muted-foreground">/ {student.lessonsTotal}</span>
           </div>
         </div>
         <div>
-          <div className="text-xs text-muted-foreground mb-1">Домашки</div>
-          <div className="flex items-center gap-2">
-            <span className="text-sm font-semibold text-green-600">{student.homeworkCompleted}</span>
-            <span className="text-xs text-muted-foreground">/ {student.homeworkTotal}</span>
+          <div className="text-xs text-muted-foreground mb-1">Пропущено</div>
+          <div className="flex items-center gap-1">
+            <Icon name="XCircle" size={14} className="text-red-500" />
+            <span className="text-sm font-semibold text-red-500">{student.lessonsMissed}</span>
+          </div>
+        </div>
+        <div>
+          <div className="text-xs text-muted-foreground mb-1">Оплачено</div>
+          <div className="flex items-center gap-1">
+            <Icon name="Wallet" size={14} className="text-blue-600" />
+            <span className="text-sm font-semibold text-blue-600">{student.lessonsPaid}</span>
           </div>
         </div>
       </div>
