@@ -1,0 +1,5 @@
+ALTER TABLE t_p720035_lineaschool_app.assignments 
+ADD COLUMN IF NOT EXISTS status VARCHAR(50) DEFAULT 'scheduled',
+ADD COLUMN IF NOT EXISTS lesson_type VARCHAR(50),
+ADD COLUMN IF NOT EXISTS alfacrm_id VARCHAR(100),
+ADD COLUMN IF NOT EXISTS teacher_id INTEGER REFERENCES t_p720035_lineaschool_app.users(id);

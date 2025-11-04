@@ -71,8 +71,31 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 'phone': row[4] or ''
             })
         
-        # Пока возвращаем пустой массив для назначений
+        # Получение назначений (занятий)
+        query = '''SELECT a.id, a.student_id, a.title, a.subject, a.due_date, a.type, 
+                          a.lesson_type, a.completed, a.due_time, a.description, a.answer, 
+                          a.status, a.teacher_id
+                   FROM t_p720035_lineaschool_app.assignments a
+                   ORDER BY a.due_date DESC'''
+        cur.execute(query)
+        assignments_raw = cur.fetchall()
         assignments = []
+        for row in assignments_raw:
+            assignments.append({
+                'id': str(row[0]),
+                'studentId': str(row[1]),
+                'title': row[2],
+                'subject': row[3],
+                'date': row[4].isoformat() if row[4] else None,
+                'type': row[5],
+                'lessonType': row[6],
+                'completed': row[7],
+                'dueTime': row[8],
+                'description': row[9],
+                'answer': row[10],
+                'createdBy': 'admin',
+                'status': row[11] or 'scheduled'
+            })
         
         cur.close()
         conn.close()
