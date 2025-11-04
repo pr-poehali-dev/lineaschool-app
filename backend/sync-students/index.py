@@ -89,6 +89,9 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         students = fetch_students(domain, int(branch_id), auth_token)
         print(f'📊 Получено учеников из AlfaCRM: {len(students)}')
         
+        if students:
+            print(f'🔍 Пример данных первого ученика: {json.dumps(students[0], ensure_ascii=False)[:500]}')
+        
         # Connect to database (use simple query protocol only)
         conn = psycopg2.connect(db_dsn)
         cur = conn.cursor()
@@ -103,6 +106,10 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             phone = normalize_phone(phone_list[0] if phone_list else '')
             name = student.get('name', '').replace("'", "''")
             student_id = str(student.get('id', '')).replace("'", "''")
+            
+            lessons_attended = int(student.get('attended_count', 0))
+            lessons_missed = int(student.get('missed_count', 0))
+            lessons_paid = int(student.get('paid_count', 0))
             
             if not name:
                 skipped += 1
@@ -121,14 +128,18 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 if existing:
                     # Update existing student
                     query = f"""UPDATE t_p720035_lineaschool_app.users 
-                               SET full_name = '{name}', login = 'student_{student_id}' 
+                               SET full_name = '{name}', login = 'student_{student_id}',
+                                   lessons_attended = {lessons_attended},
+                                   lessons_missed = {lessons_missed},
+                                   lessons_paid = {lessons_paid}
                                WHERE phone = '{phone}'"""
                     cur.execute(query)
                 else:
                     # Insert new student
                     query = f"""INSERT INTO t_p720035_lineaschool_app.users 
-                               (login, password, full_name, role, phone) 
-                               VALUES ('student_{student_id}', '{phone}', '{name}', 'student', '{phone}')"""
+                               (login, password, full_name, role, phone, lessons_attended, lessons_missed, lessons_paid) 
+                               VALUES ('student_{student_id}', '{phone}', '{name}', 'student', '{phone}', 
+                                      {lessons_attended}, {lessons_missed}, {lessons_paid})"""
                     cur.execute(query)
                 synced += 1
             except Exception as e:

@@ -39,7 +39,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         cur = conn.cursor()
         
         # Получение учеников
-        query = "SELECT id, login, full_name, role, phone FROM t_p720035_lineaschool_app.users WHERE role = 'student' ORDER BY full_name"
+        query = "SELECT id, login, full_name, role, phone, lessons_attended, lessons_missed, lessons_paid FROM t_p720035_lineaschool_app.users WHERE role = 'student' ORDER BY full_name"
         cur.execute(query)
         students_raw = cur.fetchall()
         students = []
@@ -51,7 +51,10 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 'role': row[3],
                 'phone': row[4] or '',
                 'teacherId': '',
-                'balance': 0
+                'balance': 0,
+                'lessonsAttended': row[5] or 0,
+                'lessonsMissed': row[6] or 0,
+                'lessonsPaid': row[7] or 0
             })
         
         # Получение педагогов

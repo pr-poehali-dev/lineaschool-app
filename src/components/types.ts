@@ -27,11 +27,14 @@ export interface Payment {
 export interface Student {
   id: string;
   login: string;
-  password: string;
+  password?: string;
   fullName: string;
   role: "student";
   teacherId?: string;
   balance?: number;
+  lessonsAttended?: number;
+  lessonsMissed?: number;
+  lessonsPaid?: number;
 }
 
 export interface Teacher {

@@ -98,7 +98,10 @@ const AdminDashboard = ({
       fullName: s.fullName,
       role: 'student' as const,
       teacherId: s.teacherId ? String(s.teacherId) : undefined,
-      balance: s.balance || 0
+      balance: s.balance || 0,
+      lessonsAttended: s.lessonsAttended || 0,
+      lessonsMissed: s.lessonsMissed || 0,
+      lessonsPaid: s.lessonsPaid || 0
     }));
 
     const crmTeachers = dbTeachers.map((t: any) => ({

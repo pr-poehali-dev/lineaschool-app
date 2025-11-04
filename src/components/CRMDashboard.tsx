@@ -76,17 +76,13 @@ const CRMDashboard = ({ students, teachers, assignments, onBack }: CRMDashboardP
 
     const teacher = teachers.find(t => t.id === student.teacherId);
     const balance = getStudentBalance(student.id);
-    
-    const lessonsAttended = lessons.filter(l => l.status === "attended").length;
-    const lessonsMissed = lessons.filter(l => l.status === "missed").length;
-    const lessonsPaid = Math.floor(balance / 1000);
 
     return {
       ...student,
       lessonsTotal: lessons.length,
-      lessonsAttended,
-      lessonsMissed,
-      lessonsPaid,
+      lessonsAttended: student.lessonsAttended || 0,
+      lessonsMissed: student.lessonsMissed || 0,
+      lessonsPaid: student.lessonsPaid || 0,
       homeworkTotal: homework.length,
       homeworkCompleted: homework.filter(h => h.status === "completed").length,
       homeworkLate: homework.filter(h => h.status === "completed_late").length,
