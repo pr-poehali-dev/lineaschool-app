@@ -6,6 +6,7 @@ import { Student, User, Assignment } from "./types";
 import AppHeader from "./AppHeader";
 import AppNavigation from "./AppNavigation";
 import AssignmentManager from "./AssignmentManager";
+import { useNavigate } from "react-router-dom";
 
 interface TeacherDashboardProps {
   user: User;
@@ -26,6 +27,8 @@ const TeacherDashboard = ({
   setActiveTab,
   onAddAssignment
 }: TeacherDashboardProps) => {
+  const navigate = useNavigate();
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
       <div className="max-w-md mx-auto pb-20">
@@ -40,6 +43,24 @@ const TeacherDashboard = ({
             <div className="flex items-center justify-between">
               <h2 className="text-xl font-semibold text-secondary">Мои ученики</h2>
             </div>
+
+            <Card className="p-4 shadow-md border-0 bg-gradient-to-r from-purple-500 to-blue-500">
+              <button
+                onClick={() => navigate('/game/filword')}
+                className="w-full flex items-center justify-between text-white"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
+                    <Icon name="Grid3x3" size={24} />
+                  </div>
+                  <div className="text-left">
+                    <h3 className="font-semibold text-lg">Игра: Филворд</h3>
+                    <p className="text-sm text-white/80">Создать игру для учеников</p>
+                  </div>
+                </div>
+                <Icon name="ChevronRight" size={24} />
+              </button>
+            </Card>
 
             {students.length === 0 ? (
               <Card className="p-8 text-center border-0 bg-white/60 backdrop-blur">

@@ -10,6 +10,7 @@ import UserManagement from "./UserManagement";
 import AssignmentManager from "./AssignmentManager";
 import CRMDashboard from "./CRMDashboard";
 import { Assignment } from "./types";
+import { useNavigate } from "react-router-dom";
 
 interface AdminDashboardProps {
   user: User;
@@ -36,6 +37,7 @@ const AdminDashboard = ({
   onAddTeacher,
   onAddAssignment
 }: AdminDashboardProps) => {
+  const navigate = useNavigate();
   const [showCRM, setShowCRM] = useState(false);
   const [dbStudents, setDbStudents] = useState<any[]>([]);
   const [dbTeachers, setDbTeachers] = useState<any[]>([]);
@@ -138,7 +140,7 @@ const AdminDashboard = ({
 
         {activeTab === "calendar" && (
           <div className="p-6 space-y-6">
-            <div className="mb-4">
+            <div className="mb-4 space-y-3">
               <Button 
                 onClick={() => setShowCRM(true)}
                 className="w-full"
@@ -147,6 +149,24 @@ const AdminDashboard = ({
                 <Icon name="LayoutDashboard" size={20} className="mr-2" />
                 Открыть CRM-систему
               </Button>
+
+              <Card className="p-4 shadow-md border-0 bg-gradient-to-r from-purple-500 to-blue-500">
+                <button
+                  onClick={() => navigate('/game/filword')}
+                  className="w-full flex items-center justify-between text-white"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
+                      <Icon name="Grid3x3" size={24} />
+                    </div>
+                    <div className="text-left">
+                      <h3 className="font-semibold text-lg">Игра: Филворд</h3>
+                      <p className="text-sm text-white/80">Создать игру для учеников</p>
+                    </div>
+                  </div>
+                  <Icon name="ChevronRight" size={24} />
+                </button>
+              </Card>
             </div>
 
             <div className="flex items-center justify-between">
