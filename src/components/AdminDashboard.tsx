@@ -18,8 +18,8 @@ interface AdminDashboardProps {
   teachers: Teacher[];
   onSelectStudent: (student: Student) => void;
   onLogout: () => void;
-  activeTab: "calendar" | "homework" | "profile" | "admin";
-  setActiveTab: (tab: "calendar" | "homework" | "profile" | "admin") => void;
+  activeTab: "calendar" | "homework" | "profile" | "admin" | "games";
+  setActiveTab: (tab: "calendar" | "homework" | "profile" | "admin" | "games") => void;
   onAddStudent: (student: Student) => void;
   onAddTeacher: (teacher: Teacher) => void;
   onAddAssignment: (assignment: Assignment) => void;
@@ -140,7 +140,7 @@ const AdminDashboard = ({
 
         {activeTab === "calendar" && (
           <div className="p-6 space-y-6">
-            <div className="mb-4 space-y-3">
+            <div className="mb-4">
               <Button 
                 onClick={() => setShowCRM(true)}
                 className="w-full"
@@ -149,24 +149,6 @@ const AdminDashboard = ({
                 <Icon name="LayoutDashboard" size={20} className="mr-2" />
                 Открыть CRM-систему
               </Button>
-
-              <Card className="p-4 shadow-md border-0 bg-gradient-to-r from-purple-500 to-blue-500">
-                <button
-                  onClick={() => navigate('/game/filword')}
-                  className="w-full flex items-center justify-between text-white"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
-                      <Icon name="Grid3x3" size={24} />
-                    </div>
-                    <div className="text-left">
-                      <h3 className="font-semibold text-lg">Игра: Филворд</h3>
-                      <p className="text-sm text-white/80">Создать игру для учеников</p>
-                    </div>
-                  </div>
-                  <Icon name="ChevronRight" size={24} />
-                </button>
-              </Card>
             </div>
 
             <div className="flex items-center justify-between">
@@ -271,6 +253,35 @@ const AdminDashboard = ({
             onAddTeacher={onAddTeacher}
             teachers={teachers}
           />
+        )}
+
+        {activeTab === "games" && (
+          <div className="p-6 space-y-6">
+            <h2 className="text-xl font-semibold text-secondary mb-4">Игры</h2>
+            
+            <Card 
+              className="p-4 shadow-md border-0 bg-white hover:shadow-lg transition-all cursor-pointer"
+              onClick={() => navigate('/game/filword')}
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-blue-500 rounded-lg flex items-center justify-center">
+                    <Icon name="Grid3x3" size={24} className="text-white" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-secondary">Филворд</h3>
+                    <p className="text-sm text-muted-foreground">Поиск слов на поле</p>
+                  </div>
+                </div>
+                <Icon name="ChevronRight" size={20} className="text-muted-foreground" />
+              </div>
+            </Card>
+
+            <Card className="p-8 text-center border-2 border-dashed border-gray-300 bg-gray-50">
+              <Icon name="Plus" size={32} className="mx-auto mb-2 text-gray-400" />
+              <p className="text-sm text-muted-foreground">Скоро появятся новые игры</p>
+            </Card>
+          </div>
         )}
 
         {activeTab === "profile" && (

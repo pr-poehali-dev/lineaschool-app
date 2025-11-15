@@ -2,8 +2,8 @@ import Icon from "@/components/ui/icon";
 import { cn } from "@/lib/utils";
 
 interface AppNavigationProps {
-  activeTab: "calendar" | "homework" | "profile" | "admin";
-  setActiveTab: (tab: "calendar" | "homework" | "profile" | "admin") => void;
+  activeTab: "calendar" | "homework" | "profile" | "admin" | "games";
+  setActiveTab: (tab: "calendar" | "homework" | "profile" | "admin" | "games") => void;
   isAdmin: boolean;
 }
 
@@ -30,7 +30,17 @@ const AppNavigation = ({ activeTab, setActiveTab, isAdmin }: AppNavigationProps)
             )}
           >
             <Icon name="BookOpen" size={24} />
-            <span className="text-xs font-medium">Домашние задания</span>
+            <span className="text-xs font-medium">ДЗ</span>
+          </button>
+          <button
+            onClick={() => setActiveTab("games")}
+            className={cn(
+              "flex flex-col items-center gap-1 transition-colors",
+              activeTab === "games" ? "text-primary" : "text-gray-400"
+            )}
+          >
+            <Icon name="Gamepad2" size={24} />
+            <span className="text-xs font-medium">Игры</span>
           </button>
           {isAdmin && (
             <button
@@ -41,7 +51,7 @@ const AppNavigation = ({ activeTab, setActiveTab, isAdmin }: AppNavigationProps)
               )}
             >
               <Icon name="Settings" size={24} />
-              <span className="text-xs font-medium">Управление</span>
+              <span className="text-xs font-medium">Админ</span>
             </button>
           )}
           <button

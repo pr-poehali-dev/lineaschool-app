@@ -17,7 +17,7 @@ const Index = () => {
   const [assignments, setAssignments] = useState<Assignment[]>([]);
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
   const [selectedDate, setSelectedDate] = useState<Date>(new Date(2025, 9, 9));
-  const [activeTab, setActiveTab] = useState<"calendar" | "homework" | "profile" | "admin">("calendar");
+  const [activeTab, setActiveTab] = useState<"calendar" | "homework" | "profile" | "admin" | "games">("calendar");
   const [selectedHomework, setSelectedHomework] = useState<Assignment | null>(null);
   const [homeworkAnswer, setHomeworkAnswer] = useState("");
   const [students, setStudents] = useState<Student[]>([]);
