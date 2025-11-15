@@ -9,6 +9,19 @@ export default function GameFilword() {
   const [gameConfig, setGameConfig] = useState<{ difficulty: 'easy' | 'medium' | 'hard'; theme: string; showWords: boolean } | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
 
+  const handleGoHome = () => {
+    const studentData = localStorage.getItem('studentData');
+    const userData = localStorage.getItem('lineaschool_current_user');
+    
+    if (studentData) {
+      navigate('/cabinet');
+    } else if (userData) {
+      navigate('/dashboard');
+    } else {
+      navigate('/');
+    }
+  };
+
   const handleStart = (config: { difficulty: 'easy' | 'medium' | 'hard'; theme: string; showWords: boolean }) => {
     setGameConfig(config);
     setIsPlaying(true);
@@ -82,7 +95,7 @@ export default function GameFilword() {
   return (
     <div className="w-full min-h-screen">
       <button
-        onClick={() => navigate('/')}
+        onClick={handleGoHome}
         className="fixed top-2 right-2 sm:top-4 sm:right-4 p-2 sm:p-3 bg-white rounded-lg shadow-md active:bg-gray-100 transition-colors z-50"
         title="На главную"
       >
