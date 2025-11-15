@@ -5,8 +5,8 @@ import { Label } from '@/components/ui/label';
 import Icon from '@/components/ui/icon';
 
 interface FilwordConfigProps {
-  onStart: (config: { difficulty: 'easy' | 'medium' | 'hard'; theme: string }) => void;
-  onSave?: (config: { difficulty: 'easy' | 'medium' | 'hard'; theme: string }) => void;
+  onStart: (config: { difficulty: 'easy' | 'medium' | 'hard'; theme: string; showWords: boolean }) => void;
+  onSave?: (config: { difficulty: 'easy' | 'medium' | 'hard'; theme: string; showWords: boolean }) => void;
 }
 
 const THEMES = [
@@ -20,13 +20,14 @@ const THEMES = [
 export default function FilwordConfig({ onStart, onSave }: FilwordConfigProps) {
   const [difficulty, setDifficulty] = useState<'easy' | 'medium' | 'hard'>('easy');
   const [theme, setTheme] = useState(THEMES[0]);
+  const [showWords, setShowWords] = useState(true);
 
   const handleStart = () => {
-    onStart({ difficulty, theme });
+    onStart({ difficulty, theme, showWords });
   };
 
   const handleSave = () => {
-    onSave?.({ difficulty, theme });
+    onSave?.({ difficulty, theme, showWords });
   };
 
   return (
@@ -88,6 +89,36 @@ export default function FilwordConfig({ onStart, onSave }: FilwordConfigProps) {
                 <div className="text-xs sm:text-sm text-gray-600 mt-1">13×13 клеток, 8-10 слов</div>
                 <div className="text-xs text-gray-500 mt-1">Редкочастотные слова</div>
               </button>
+            </div>
+          </div>
+
+          <div>
+            <Label className="text-sm sm:text-base font-semibold mb-2 sm:mb-3 block">Показывать подсказки:</Label>
+            <div className="flex items-center gap-3 p-3 sm:p-4 bg-purple-50 rounded-lg border-2 border-purple-200">
+              <button
+                onClick={() => setShowWords(!showWords)}
+                className={`
+                  relative w-14 h-7 rounded-full transition-all
+                  ${showWords ? 'bg-green-500' : 'bg-gray-300'}
+                `}
+              >
+                <div
+                  className={`
+                    absolute top-1 left-1 w-5 h-5 bg-white rounded-full transition-transform
+                    ${showWords ? 'translate-x-7' : 'translate-x-0'}
+                  `}
+                />
+              </button>
+              <div>
+                <p className="font-semibold text-sm sm:text-base text-gray-800">
+                  {showWords ? '✅ Список слов виден' : '🔒 Список слов скрыт'}
+                </p>
+                <p className="text-xs sm:text-sm text-gray-600 mt-1">
+                  {showWords 
+                    ? 'Ребёнок видит, какие слова нужно найти' 
+                    : 'Повышенная сложность — слова скрыты'}
+                </p>
+              </div>
             </div>
           </div>
 

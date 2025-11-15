@@ -8,6 +8,7 @@ import FilwordWordList from './FilwordWordList';
 interface FilwordProps {
   difficulty: 'easy' | 'medium' | 'hard';
   theme: string;
+  showWords?: boolean;
   onComplete?: (score: number, maxScore: number, timeSpent: number) => void;
 }
 
@@ -25,7 +26,7 @@ interface Word {
   cells: { row: number; col: number }[];
 }
 
-export default function Filword({ difficulty, theme, onComplete }: FilwordProps) {
+export default function Filword({ difficulty, theme, showWords = true, onComplete }: FilwordProps) {
   const gridSize = difficulty === 'easy' ? 7 : difficulty === 'medium' ? 10 : 13;
   const difficultyKey = difficulty === 'easy' ? 'easy' : difficulty === 'medium' ? 'medium' : 'hard';
   
@@ -286,7 +287,7 @@ export default function Filword({ difficulty, theme, onComplete }: FilwordProps)
             onCellClick={handleCellClick}
           />
 
-          <FilwordWordList words={words} />
+          {showWords && <FilwordWordList words={words} />}
         </div>
 
         {!isPlaying && (

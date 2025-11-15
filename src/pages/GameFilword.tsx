@@ -3,15 +3,15 @@ import Filword from '@/components/games/Filword';
 import FilwordConfig from '@/components/games/FilwordConfig';
 
 export default function GameFilword() {
-  const [gameConfig, setGameConfig] = useState<{ difficulty: 'easy' | 'medium' | 'hard'; theme: string } | null>(null);
+  const [gameConfig, setGameConfig] = useState<{ difficulty: 'easy' | 'medium' | 'hard'; theme: string; showWords: boolean } | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
 
-  const handleStart = (config: { difficulty: 'easy' | 'medium' | 'hard'; theme: string }) => {
+  const handleStart = (config: { difficulty: 'easy' | 'medium' | 'hard'; theme: string; showWords: boolean }) => {
     setGameConfig(config);
     setIsPlaying(true);
   };
 
-  const handleSave = async (config: { difficulty: 'easy' | 'medium' | 'hard'; theme: string }) => {
+  const handleSave = async (config: { difficulty: 'easy' | 'medium' | 'hard'; theme: string; showWords: boolean }) => {
     try {
       const response = await fetch('https://functions.poehali.dev/1fc4b783-89ef-4c50-9b7b-c8185ca01681', {
         method: 'POST',
@@ -85,6 +85,7 @@ export default function GameFilword() {
           <Filword
             difficulty={gameConfig.difficulty}
             theme={gameConfig.theme}
+            showWords={gameConfig.showWords}
             onComplete={handleComplete}
           />
           <button
