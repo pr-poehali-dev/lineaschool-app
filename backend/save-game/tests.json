@@ -1,0 +1,26 @@
+{
+  "tests": [
+    {
+      "name": "Save filword game",
+      "method": "POST",
+      "body": {
+        "game_type": "filword",
+        "title": "Филворд: Осень",
+        "description": "Игра на развитие внимания и словарного запаса",
+        "difficulty": "easy",
+        "config": {
+          "theme": "осень",
+          "difficulty": "easy"
+        },
+        "created_by": 1,
+        "target_age_min": 7,
+        "target_age_max": 12
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "success": true
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}

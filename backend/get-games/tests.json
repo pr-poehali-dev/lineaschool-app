@@ -1,0 +1,29 @@
+{
+  "tests": [
+    {
+      "name": "Get all active games",
+      "method": "GET",
+      "queryParams": {
+        "is_active": "true"
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "success": true,
+        "games": "array"
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Get filword games",
+      "method": "GET",
+      "queryParams": {
+        "game_type": "filword"
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "success": true
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}

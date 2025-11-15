@@ -1,0 +1,24 @@
+{
+  "tests": [
+    {
+      "name": "Save game result",
+      "method": "POST",
+      "body": {
+        "game_id": 1,
+        "student_id": 2,
+        "score": 8,
+        "max_score": 10,
+        "time_spent": 450,
+        "details": {
+          "words_found": 8,
+          "total_words": 10
+        }
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "success": true
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}

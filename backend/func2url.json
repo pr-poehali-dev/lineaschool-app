@@ -1,4 +1,7 @@
 {
+  "save-game-result": "https://functions.poehali.dev/a5f63e7f-87fd-446a-bb03-ba19bcf8cdcb",
+  "save-game": "https://functions.poehali.dev/1fc4b783-89ef-4c50-9b7b-c8185ca01681",
+  "get-games": "https://functions.poehali.dev/3ca9e870-8c9e-4d15-9583-151e190f0bfa",
   "get-branches": "https://functions.poehali.dev/05e520f2-28c3-4371-a8f3-34dd20507dbd",
   "get-students": "https://functions.poehali.dev/649662ee-a259-46cb-a494-a090f9842573",
   "alfacrm-sync": "https://functions.poehali.dev/ff6e4964-b0a6-4754-a939-342ee35193d4",
