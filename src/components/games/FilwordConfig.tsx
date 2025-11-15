@@ -55,8 +55,8 @@ export default function FilwordConfig({ onStart, onSave }: FilwordConfigProps) {
                 `}
               >
                 <div className="font-semibold text-gray-800">Простой</div>
-                <div className="text-sm text-gray-600 mt-1">7×7 клеток</div>
-                <div className="text-xs text-gray-500 mt-1">Простые частотные слова</div>
+                <div className="text-sm text-gray-600 mt-1">7×7 клеток, 8-10 слов</div>
+                <div className="text-xs text-gray-500 mt-1">Частотные слова</div>
               </button>
 
               <button
@@ -70,8 +70,8 @@ export default function FilwordConfig({ onStart, onSave }: FilwordConfigProps) {
                 `}
               >
                 <div className="font-semibold text-gray-800">Средний</div>
-                <div className="text-sm text-gray-600 mt-1">10×10 клеток</div>
-                <div className="text-xs text-gray-500 mt-1">Средние слова</div>
+                <div className="text-sm text-gray-600 mt-1">10×10 клеток, 8-10 слов</div>
+                <div className="text-xs text-gray-500 mt-1">Частотные и редкочастотные</div>
               </button>
 
               <button
@@ -85,8 +85,8 @@ export default function FilwordConfig({ onStart, onSave }: FilwordConfigProps) {
                 `}
               >
                 <div className="font-semibold text-gray-800">Сложный</div>
-                <div className="text-sm text-gray-600 mt-1">13×13 клеток</div>
-                <div className="text-xs text-gray-500 mt-1">Длинные редкие слова</div>
+                <div className="text-sm text-gray-600 mt-1">13×13 клеток, 8-10 слов</div>
+                <div className="text-xs text-gray-500 mt-1">Редкочастотные слова</div>
               </button>
             </div>
           </div>
