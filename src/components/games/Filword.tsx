@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import Icon from '@/components/ui/icon';
@@ -186,6 +186,10 @@ export default function Filword({ difficulty, theme, onComplete }: FilwordProps)
   const [timeLeft, setTimeLeft] = useState(600);
   const [isPlaying, setIsPlaying] = useState(true);
   const [startTime] = useState(Date.now());
+  const [celebrationWord, setCelebrationWord] = useState<string | null>(null);
+  const [shake, setShake] = useState(false);
+  const [confetti, setConfetti] = useState<Array<{id: number, x: number, y: number, color: string}>>([]);
+  const confettiIdRef = useRef(0);
 
   useEffect(() => {
     initializeGame();
@@ -321,6 +325,9 @@ export default function Filword({ difficulty, theme, onComplete }: FilwordProps)
         if (allCellsSelected) {
           setWords(prev => prev.map((w, i) => i === wordIndex ? { ...w, found: true } : w));
           setSelectedCells([]);
+          setCelebrationWord(word.text);
+          triggerConfetti();
+          setTimeout(() => setCelebrationWord(null), 1500);
         }
       });
     }
@@ -348,25 +355,107 @@ export default function Filword({ difficulty, theme, onComplete }: FilwordProps)
     return words[cell.wordIndex]?.found || false;
   };
 
+  const triggerConfetti = () => {
+    const newConfetti = Array.from({ length: 15 }, (_, i) => ({
+      id: confettiIdRef.current++,
+      x: Math.random() * 100,
+      y: -10,
+      color: ['#FF6B6B', '#4ECDC4', '#FFD93D', '#95E1D3', '#F38181', '#AA96DA', '#FCBAD3'][Math.floor(Math.random() * 7)]
+    }));
+    setConfetti(prev => [...prev, ...newConfetti]);
+    setTimeout(() => {
+      setConfetti(prev => prev.filter(c => !newConfetti.find(nc => nc.id === c.id)));
+    }, 2000);
+  };
+
+  useEffect(() => {
+    if (timeLeft <= 10 && timeLeft > 0 && isPlaying) {
+      setShake(true);
+      setTimeout(() => setShake(false), 500);
+    }
+  }, [timeLeft, isPlaying]);
+
   return (
-    <div className="w-full h-full flex flex-col items-center justify-center p-4 bg-gradient-to-br from-blue-50 to-purple-50">
-      <Card className="w-full max-w-4xl p-6 shadow-xl">
+    <div className="w-full h-full flex flex-col items-center justify-center p-4 bg-gradient-to-br from-purple-100 via-pink-100 to-blue-100 relative overflow-hidden">
+      {confetti.map(c => (
+        <div
+          key={c.id}
+          className="absolute w-3 h-3 rounded-full animate-fall pointer-events-none"
+          style={{
+            left: `${c.x}%`,
+            top: `${c.y}%`,
+            backgroundColor: c.color,
+            animation: 'fall 2s ease-in forwards'
+          }}
+        />
+      ))}
+      
+      {celebrationWord && (
+        <div className="fixed inset-0 flex items-center justify-center z-50 pointer-events-none">
+          <div className="bg-gradient-to-r from-yellow-400 via-orange-500 to-pink-500 text-white px-12 py-8 rounded-3xl shadow-2xl animate-bounce-in text-4xl font-black">
+            🎉 {celebrationWord}! 🎉
+          </div>
+        </div>
+      )}
+      
+      <style>{`
+        @keyframes fall {
+          to {
+            transform: translateY(100vh) rotate(360deg);
+            opacity: 0;
+          }
+        }
+        @keyframes bounce-in {
+          0% {
+            transform: scale(0) rotate(-180deg);
+            opacity: 0;
+          }
+          50% {
+            transform: scale(1.2) rotate(10deg);
+          }
+          100% {
+            transform: scale(1) rotate(0deg);
+            opacity: 1;
+          }
+        }
+        @keyframes shake {
+          0%, 100% { transform: translateX(0); }
+          25% { transform: translateX(-10px); }
+          75% { transform: translateX(10px); }
+        }
+        .animate-fall {
+          animation: fall 2s ease-in forwards;
+        }
+        .animate-bounce-in {
+          animation: bounce-in 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+        .animate-shake {
+          animation: shake 0.5s;
+        }
+      `}</style>
+      <Card className="w-full max-w-4xl p-6 shadow-2xl bg-white/95 backdrop-blur-sm border-4 border-purple-300">
         <div className="flex justify-between items-center mb-6">
           <div>
-            <h2 className="text-2xl font-bold text-gray-800">Филворд: {theme}</h2>
-            <p className="text-sm text-gray-600 mt-1">
-              Найдите все слова на поле. Слова располагаются горизонтально и вертикально
+            <h2 className="text-3xl font-black bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">🎯 Филворд: {theme}</h2>
+            <p className="text-sm text-purple-700 mt-1 font-semibold">
+              Найди все слова! Клик по буквам — вертикально и горизонтально ⬆️⬇️⬅️➡️
             </p>
           </div>
           <div className="text-right">
-            <div className="flex items-center gap-2 text-lg font-semibold">
-              <Icon name="Timer" size={20} />
-              <span className={timeLeft < 60 ? 'text-red-500' : 'text-gray-700'}>
+            <div className={`flex items-center gap-2 text-2xl font-black ${shake ? 'animate-shake' : ''}`}>
+              <Icon name="Timer" size={28} className={timeLeft < 60 ? 'text-red-500' : 'text-green-500'} />
+              <span className={`${timeLeft < 60 ? 'text-red-600 animate-pulse' : timeLeft < 120 ? 'text-orange-500' : 'text-green-600'}`}>
                 {formatTime(timeLeft)}
               </span>
             </div>
-            <div className="text-sm text-gray-600 mt-1">
-              Найдено: {words.filter(w => w.found).length} / {words.length}
+            <div className="text-lg font-bold mt-2 bg-gradient-to-r from-green-500 to-blue-500 bg-clip-text text-transparent">
+              🏆 {words.filter(w => w.found).length} / {words.length} слов
+            </div>
+            <div className="w-full bg-gray-200 rounded-full h-3 mt-2 overflow-hidden border-2 border-purple-300">
+              <div 
+                className="bg-gradient-to-r from-green-400 via-blue-500 to-purple-600 h-full transition-all duration-500 ease-out"
+                style={{ width: `${(words.filter(w => w.found).length / words.length) * 100}%` }}
+              />
             </div>
           </div>
         </div>
@@ -387,14 +476,14 @@ export default function Filword({ difficulty, theme, onComplete }: FilwordProps)
                     onClick={() => handleCellClick(rowIndex, colIndex)}
                     disabled={!isPlaying || isCellFound(rowIndex, colIndex)}
                     className={`
-                      aspect-square flex items-center justify-center font-bold
-                      rounded transition-all duration-200
-                      ${difficulty === 'easy' ? 'text-lg' : difficulty === 'medium' ? 'text-base' : 'text-sm'}
+                      aspect-square flex items-center justify-center font-black
+                      rounded-xl transition-all duration-300 transform
+                      ${difficulty === 'easy' ? 'text-xl' : difficulty === 'medium' ? 'text-lg' : 'text-base'}
                       ${isCellFound(rowIndex, colIndex) 
-                        ? 'bg-green-500 text-white cursor-not-allowed' 
+                        ? 'bg-gradient-to-br from-green-400 to-emerald-600 text-white cursor-not-allowed shadow-lg scale-105 animate-pulse' 
                         : isCellSelected(rowIndex, colIndex)
-                        ? 'bg-blue-400 text-white scale-95'
-                        : 'bg-white hover:bg-blue-100 text-gray-800 border border-gray-300'
+                        ? 'bg-gradient-to-br from-yellow-400 to-orange-500 text-white scale-110 shadow-xl ring-4 ring-yellow-300'
+                        : 'bg-gradient-to-br from-white to-purple-50 hover:from-purple-100 hover:to-pink-100 text-gray-800 border-2 border-purple-300 hover:scale-105 hover:shadow-lg active:scale-95'
                       }
                     `}
                   >
@@ -406,20 +495,22 @@ export default function Filword({ difficulty, theme, onComplete }: FilwordProps)
           </div>
 
           <div className="w-64">
-            <h3 className="font-semibold text-gray-700 mb-3">Слова для поиска:</h3>
-            <div className="space-y-2 max-h-96 overflow-y-auto">
+            <h3 className="font-black text-xl text-purple-700 mb-3 flex items-center gap-2">
+              <span>📝</span> Найди слова:
+            </h3>
+            <div className="space-y-2 max-h-96 overflow-y-auto pr-2">
               {words.map((word, index) => (
                 <div
                   key={index}
                   className={`
-                    p-2 rounded text-sm font-medium transition-all
+                    p-3 rounded-xl text-base font-bold transition-all duration-300 border-2
                     ${word.found 
-                      ? 'bg-green-100 text-green-700 line-through' 
-                      : 'bg-gray-100 text-gray-700'
+                      ? 'bg-gradient-to-r from-green-400 to-emerald-500 text-white line-through border-green-600 shadow-lg scale-105' 
+                      : 'bg-gradient-to-r from-purple-50 to-pink-50 text-purple-900 border-purple-300 hover:border-purple-500 hover:shadow-md'
                     }
                   `}
                 >
-                  {word.text}
+                  {word.found ? '✅ ' : '🔍 '}{word.text}
                 </div>
               ))}
             </div>
@@ -427,23 +518,31 @@ export default function Filword({ difficulty, theme, onComplete }: FilwordProps)
         </div>
 
         {!isPlaying && (
-          <div className="mt-6 p-4 bg-blue-50 rounded-lg text-center">
-            <p className="text-lg font-semibold text-gray-800">
-              Игра окончена! Найдено слов: {words.filter(w => w.found).length} / {words.length}
+          <div className="mt-6 p-6 bg-gradient-to-r from-purple-500 to-pink-500 rounded-2xl text-center shadow-2xl border-4 border-white">
+            <p className="text-3xl font-black text-white mb-2">
+              {words.filter(w => w.found).length === words.length ? '🎉 ПОБЕДА! 🎉' : '⏰ Время вышло!'}
             </p>
+            <p className="text-xl font-bold text-white">
+              Найдено слов: {words.filter(w => w.found).length} / {words.length}
+            </p>
+            {words.filter(w => w.found).length === words.length && (
+              <p className="text-lg font-semibold text-yellow-200 mt-2">💪 Ты супер! Все слова найдены!</p>
+            )}
           </div>
         )}
       </Card>
 
-      <Card className="w-full max-w-4xl mt-4 p-4 bg-blue-50">
-        <h3 className="font-semibold text-gray-800 mb-2">Цели упражнения:</h3>
-        <ul className="text-sm text-gray-700 space-y-1">
-          <li>• Развитие зрительного гнозиса и анализа</li>
-          <li>• Развитие навыков фонематического анализа и синтеза</li>
-          <li>• Развитие орфографической зоркости</li>
-          <li>• Обогащение активного словаря</li>
-          <li>• Развитие произвольного внимания</li>
-          <li>• Развитие сукцессивного и симультанного восприятия</li>
+      <Card className="w-full max-w-4xl mt-4 p-5 bg-gradient-to-r from-blue-50 to-purple-50 border-2 border-purple-200">
+        <h3 className="font-bold text-purple-800 mb-3 text-lg flex items-center gap-2">
+          <span>🎓</span> Что развивает эта игра:
+        </h3>
+        <ul className="text-sm text-purple-900 space-y-2 font-medium">
+          <li className="flex items-start gap-2">👁️ <span>Зрительное восприятие и анализ</span></li>
+          <li className="flex items-start gap-2">🔤 <span>Навыки работы со словами</span></li>
+          <li className="flex items-start gap-2">✨ <span>Грамотность и внимательность</span></li>
+          <li className="flex items-start gap-2">📚 <span>Обогащение словарного запаса</span></li>
+          <li className="flex items-start gap-2">🎯 <span>Концентрацию внимания</span></li>
+          <li className="flex items-start gap-2">🧠 <span>Память и быстроту мышления</span></li>
         </ul>
       </Card>
     </div>
