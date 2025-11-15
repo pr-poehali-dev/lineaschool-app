@@ -2,6 +2,7 @@ interface Word {
   text: string;
   found: boolean;
   cells: { row: number; col: number }[];
+  foundTime?: number;
 }
 
 interface FilwordWordListProps {

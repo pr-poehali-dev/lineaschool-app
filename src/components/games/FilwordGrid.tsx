@@ -10,6 +10,7 @@ interface Word {
   text: string;
   found: boolean;
   cells: { row: number; col: number }[];
+  foundTime?: number;
 }
 
 interface FilwordGridProps {
@@ -34,6 +35,15 @@ export default function FilwordGrid({ grid, words, selectedCells, difficulty, is
     return words[cell.wordIndex]?.found || false;
   };
 
+  const shouldAnimate = (row: number, col: number) => {
+    const cell = grid[row]?.[col];
+    if (!cell || cell.wordIndex === null) return false;
+    const word = words[cell.wordIndex];
+    if (!word?.found || !word.foundTime) return false;
+    const timeSinceFound = Date.now() - word.foundTime;
+    return timeSinceFound < 1500;
+  };
+
   return (
     <div className="flex-1 w-full">
       <div 
@@ -54,7 +64,7 @@ export default function FilwordGrid({ grid, words, selectedCells, difficulty, is
                 rounded-md sm:rounded-xl transition-all duration-300 transform
                 ${difficulty === 'easy' ? 'text-base sm:text-xl' : difficulty === 'medium' ? 'text-sm sm:text-lg' : 'text-xs sm:text-base'}
                 ${isCellFound(rowIndex, colIndex) 
-                  ? 'bg-gradient-to-br from-green-400 to-emerald-600 text-white cursor-not-allowed shadow-md sm:shadow-lg scale-105' 
+                  ? `bg-gradient-to-br from-green-400 to-emerald-600 text-white cursor-not-allowed shadow-md sm:shadow-lg scale-105 ${shouldAnimate(rowIndex, colIndex) ? 'animate-pulse' : ''}` 
                   : isCellSelected(rowIndex, colIndex)
                   ? 'bg-gradient-to-br from-yellow-400 to-orange-500 text-white scale-110 shadow-lg sm:shadow-xl ring-2 sm:ring-4 ring-yellow-300'
                   : 'bg-gradient-to-br from-white to-purple-50 active:from-purple-100 active:to-pink-100 text-gray-800 border border-purple-300 sm:border-2 active:scale-95'

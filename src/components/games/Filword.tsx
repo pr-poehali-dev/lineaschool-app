@@ -24,6 +24,7 @@ interface Word {
   text: string;
   found: boolean;
   cells: { row: number; col: number }[];
+  foundTime?: number;
 }
 
 export default function Filword({ difficulty, theme, showWords = true, onComplete }: FilwordProps) {
@@ -173,7 +174,7 @@ export default function Filword({ difficulty, theme, showWords = true, onComplet
         );
 
         if (allCellsSelected) {
-          setWords(prev => prev.map((w, i) => i === wordIndex ? { ...w, found: true } : w));
+          setWords(prev => prev.map((w, i) => i === wordIndex ? { ...w, found: true, foundTime: Date.now() } : w));
           setSelectedCells([]);
           setCelebrationWord(word.text);
           triggerConfetti();
