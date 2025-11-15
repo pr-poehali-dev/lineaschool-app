@@ -86,7 +86,7 @@ export default function FilwordConfig({ onStart, onSave }: FilwordConfigProps) {
               >
                 <div className="font-semibold text-gray-800">Сложный</div>
                 <div className="text-sm text-gray-600 mt-1">20×20 клеток</div>
-                <div className="text-xs text-gray-500 mt-1">Длинные редкие слова</div>
+                <div className="text-xs text-gray-500 mt-1">Длинные редкочастотные слова</div>
               </button>
             </div>
           </div>
