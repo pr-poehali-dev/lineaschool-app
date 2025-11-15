@@ -90,11 +90,10 @@ export default function Filword({ difficulty, theme, showWords = true, onComplet
       let placed = false;
       let attempts = 0;
       const maxAttempts = 100;
-      const forceHorizontal = index % 2 === 0;
 
       while (!placed && attempts < maxAttempts) {
         attempts++;
-        const horizontal = forceHorizontal ? true : false;
+        const horizontal = Math.random() > 0.5;
         const row = Math.floor(Math.random() * gridSize);
         const col = Math.floor(Math.random() * gridSize);
 
