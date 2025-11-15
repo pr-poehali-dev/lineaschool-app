@@ -1,8 +1,11 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Filword from '@/components/games/Filword';
 import FilwordConfig from '@/components/games/FilwordConfig';
+import Icon from '@/components/ui/icon';
 
 export default function GameFilword() {
+  const navigate = useNavigate();
   const [gameConfig, setGameConfig] = useState<{ difficulty: 'easy' | 'medium' | 'hard'; theme: string; showWords: boolean } | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
 
@@ -78,6 +81,13 @@ export default function GameFilword() {
 
   return (
     <div className="w-full min-h-screen">
+      <button
+        onClick={() => navigate('/')}
+        className="fixed top-2 right-2 sm:top-4 sm:right-4 p-2 sm:p-3 bg-white rounded-lg shadow-md active:bg-gray-100 transition-colors z-50"
+        title="На главную"
+      >
+        <Icon name="Home" size={20} className="sm:w-6 sm:h-6 text-gray-700" />
+      </button>
       {!isPlaying ? (
         <FilwordConfig onStart={handleStart} />
       ) : gameConfig ? (
