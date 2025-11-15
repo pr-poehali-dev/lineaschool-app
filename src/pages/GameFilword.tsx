@@ -77,11 +77,11 @@ export default function GameFilword() {
   };
 
   return (
-    <div className="w-full h-screen">
+    <div className="w-full min-h-screen">
       {!isPlaying ? (
         <FilwordConfig onStart={handleStart} onSave={handleSave} />
       ) : gameConfig ? (
-        <div className="relative w-full h-full">
+        <div className="relative w-full min-h-screen">
           <Filword
             difficulty={gameConfig.difficulty}
             theme={gameConfig.theme}
@@ -89,9 +89,9 @@ export default function GameFilword() {
           />
           <button
             onClick={handleRestart}
-            className="absolute top-4 left-4 px-4 py-2 bg-white rounded-lg shadow-md hover:bg-gray-100 transition-colors"
+            className="fixed top-2 left-2 sm:top-4 sm:left-4 px-3 py-2 sm:px-4 text-sm sm:text-base bg-white rounded-lg shadow-md active:bg-gray-100 transition-colors z-10"
           >
-            ← Назад к настройкам
+            ← Назад
           </button>
         </div>
       ) : null}

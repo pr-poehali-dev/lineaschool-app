@@ -209,7 +209,7 @@ export default function Filword({ difficulty, theme, onComplete }: FilwordProps)
   }, [timeLeft, isPlaying]);
 
   return (
-    <div className="w-full h-full flex flex-col items-center justify-center p-4 bg-gradient-to-br from-purple-100 via-pink-100 to-blue-100 relative overflow-hidden">
+    <div className="w-full min-h-screen flex flex-col items-center justify-start p-2 sm:p-4 bg-gradient-to-br from-purple-100 via-pink-100 to-blue-100 relative overflow-hidden">
       {confetti.map(c => (
         <div
           key={c.id}
@@ -224,8 +224,8 @@ export default function Filword({ difficulty, theme, onComplete }: FilwordProps)
       ))}
       
       {celebrationWord && (
-        <div className="fixed inset-0 flex items-center justify-center z-50 pointer-events-none">
-          <div className="bg-gradient-to-r from-yellow-400 via-orange-500 to-pink-500 text-white px-12 py-8 rounded-3xl shadow-2xl animate-bounce-in text-4xl font-black">
+        <div className="fixed inset-0 flex items-center justify-center z-50 pointer-events-none px-4">
+          <div className="bg-gradient-to-r from-yellow-400 via-orange-500 to-pink-500 text-white px-6 sm:px-12 py-4 sm:py-8 rounded-2xl sm:rounded-3xl shadow-2xl animate-bounce-in text-2xl sm:text-4xl font-black">
             🎉 {celebrationWord}! 🎉
           </div>
         </div>
@@ -267,7 +267,7 @@ export default function Filword({ difficulty, theme, onComplete }: FilwordProps)
         }
       `}</style>
 
-      <Card className="w-full max-w-4xl p-6 shadow-2xl bg-white/95 backdrop-blur-sm border-4 border-purple-300">
+      <Card className="w-full max-w-4xl p-3 sm:p-6 shadow-2xl bg-white/95 backdrop-blur-sm border-2 sm:border-4 border-purple-300">
         <FilwordHeader 
           theme={theme}
           timeLeft={timeLeft}
@@ -276,7 +276,7 @@ export default function Filword({ difficulty, theme, onComplete }: FilwordProps)
           shake={shake}
         />
 
-        <div className="flex gap-6">
+        <div className="flex flex-col lg:flex-row gap-4 lg:gap-6">
           <FilwordGrid
             grid={grid}
             words={words}
@@ -290,25 +290,25 @@ export default function Filword({ difficulty, theme, onComplete }: FilwordProps)
         </div>
 
         {!isPlaying && (
-          <div className="mt-6 p-6 bg-gradient-to-r from-purple-500 to-pink-500 rounded-2xl text-center shadow-2xl border-4 border-white">
-            <p className="text-3xl font-black text-white mb-2">
+          <div className="mt-4 sm:mt-6 p-4 sm:p-6 bg-gradient-to-r from-purple-500 to-pink-500 rounded-2xl text-center shadow-2xl border-2 sm:border-4 border-white">
+            <p className="text-2xl sm:text-3xl font-black text-white mb-2">
               {words.filter(w => w.found).length === words.length ? '🎉 ПОБЕДА! 🎉' : '⏰ Время вышло!'}
             </p>
-            <p className="text-xl font-bold text-white">
+            <p className="text-lg sm:text-xl font-bold text-white">
               Найдено слов: {words.filter(w => w.found).length} / {words.length}
             </p>
             {words.filter(w => w.found).length === words.length && (
-              <p className="text-lg font-semibold text-yellow-200 mt-2">💪 Ты супер! Все слова найдены!</p>
+              <p className="text-base sm:text-lg font-semibold text-yellow-200 mt-2">💪 Ты супер! Все слова найдены!</p>
             )}
           </div>
         )}
       </Card>
 
-      <Card className="w-full max-w-4xl mt-4 p-5 bg-gradient-to-r from-blue-50 to-purple-50 border-2 border-purple-200">
-        <h3 className="font-bold text-purple-800 mb-3 text-lg flex items-center gap-2">
+      <Card className="w-full max-w-4xl mt-3 sm:mt-4 p-3 sm:p-5 bg-gradient-to-r from-blue-50 to-purple-50 border-2 border-purple-200">
+        <h3 className="font-bold text-purple-800 mb-2 sm:mb-3 text-base sm:text-lg flex items-center gap-2">
           <span>🎓</span> Что развивает эта игра:
         </h3>
-        <ul className="text-sm text-purple-900 space-y-2 font-medium">
+        <ul className="text-xs sm:text-sm text-purple-900 space-y-1 sm:space-y-2 font-medium">
           <li className="flex items-start gap-2">👁️ <span>Зрительное восприятие и анализ</span></li>
           <li className="flex items-start gap-2">🔤 <span>Навыки работы со словами</span></li>
           <li className="flex items-start gap-2">✨ <span>Грамотность и внимательность</span></li>
