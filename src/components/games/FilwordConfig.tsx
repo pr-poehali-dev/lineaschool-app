@@ -71,7 +71,7 @@ export default function FilwordConfig({ onStart, onSave }: FilwordConfigProps) {
               >
                 <div className="font-semibold text-gray-800">Средний</div>
                 <div className="text-sm text-gray-600 mt-1">13×13 клеток</div>
-                <div className="text-xs text-gray-500 mt-1">Средние слова</div>
+                <div className="text-xs text-gray-500 mt-1">Частотные слова различной длины</div>
               </button>
 
               <button
