@@ -177,7 +177,7 @@ const THEMES_DATA: Record<string, Record<string, string[]>> = {
 };
 
 export default function Filword({ difficulty, theme, onComplete }: FilwordProps) {
-  const gridSize = difficulty === 'easy' ? 7 : difficulty === 'medium' ? 13 : 20;
+  const gridSize = difficulty === 'easy' ? 7 : difficulty === 'medium' ? 10 : 13;
   const difficultyKey = difficulty === 'easy' ? 'easy' : difficulty === 'medium' ? 'medium' : 'hard';
   
   const [grid, setGrid] = useState<Cell[][]>([]);
