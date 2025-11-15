@@ -79,7 +79,7 @@ export default function GameFilword() {
   return (
     <div className="w-full min-h-screen">
       {!isPlaying ? (
-        <FilwordConfig onStart={handleStart} onSave={handleSave} />
+        <FilwordConfig onStart={handleStart} />
       ) : gameConfig ? (
         <div className="relative w-full min-h-screen">
           <Filword
