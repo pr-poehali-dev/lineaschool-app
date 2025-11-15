@@ -20,7 +20,7 @@ export default function FilwordHeader({ theme, timeLeft, foundCount, totalCount,
       <div className="flex-1">
         <h2 className="text-xl sm:text-2xl md:text-3xl font-black bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">🎯 Филворд: {theme}</h2>
         <p className="text-xs sm:text-sm text-purple-700 mt-1 font-semibold">
-          Найди все слова! Клик по буквам ⬆️⬇️⬅️➡️
+          Найди все слова! Клик по буквам
         </p>
       </div>
       <div className="w-full sm:w-auto sm:text-right">
