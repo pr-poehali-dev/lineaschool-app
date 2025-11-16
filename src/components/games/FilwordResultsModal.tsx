@@ -79,9 +79,9 @@ export default function FilwordResultsModal({
   };
 
   const getDifficultyLabel = (diff: string) => {
-    if (diff === 'easy') return 'Простой';
-    if (diff === 'medium') return 'Средний';
-    return 'Сложный';
+    if (diff === 'easy') return 'простой';
+    if (diff === 'medium') return 'средний';
+    return 'сложный';
   };
 
   const getMedal = (index: number) => {
