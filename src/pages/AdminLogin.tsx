@@ -52,27 +52,27 @@ const AdminLogin = () => {
     setLoading(true);
 
     try {
-      const usersData = localStorage.getItem("lineaschool_users");
-      if (!usersData) {
-        throw new Error("Данные пользователей не найдены");
-      }
+      const response = await fetch('https://functions.poehali.dev/9dda3c92-376c-44ef-a9a6-ecca82072755', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ login, password }),
+      });
 
-      const users = JSON.parse(usersData);
-      const admin = users.find(
-        (u: any) => u.login === login && u.password === password && u.role === "admin"
-      );
+      const data = await response.json();
 
-      if (admin) {
-        localStorage.setItem("lineaschool_current_user", JSON.stringify(admin));
+      if (data.success && data.user) {
+        localStorage.setItem("lineaschool_current_user", JSON.stringify(data.user));
         toast({
           title: "Вход выполнен",
-          description: `Добро пожаловать, ${admin.fullName}!`,
+          description: `Добро пожаловать, ${data.user.fullName}!`,
         });
         navigate("/dashboard");
       } else {
         toast({
           title: "Ошибка входа",
-          description: "Неверный логин или пароль",
+          description: data.error || "Неверный логин или пароль",
           variant: "destructive",
         });
       }
