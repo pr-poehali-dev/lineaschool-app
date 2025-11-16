@@ -146,14 +146,16 @@ export default function FilwordResultsModal({
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-2 mt-4 text-xs sm:text-sm">
-              <div className="bg-white/70 rounded-lg p-2">
-                <span className="text-gray-600">Тема:</span>
-                <span className="font-bold ml-1 text-gray-800">{theme}</span>
-              </div>
-              <div className="bg-white/70 rounded-lg p-2">
-                <span className="text-gray-600">Сложность:</span>
-                <span className="font-bold ml-1 text-gray-800 break-words">{getDifficultyLabel(difficulty)}</span>
+            <div className="bg-white/70 rounded-lg p-3 mt-4">
+              <div className="grid grid-cols-2 gap-4 text-xs sm:text-sm">
+                <div>
+                  <div className="text-gray-600 mb-1">Тема:</div>
+                  <div className="font-bold text-gray-800">{theme}</div>
+                </div>
+                <div>
+                  <div className="text-gray-600 mb-1">Сложность:</div>
+                  <div className="font-bold text-gray-800">{getDifficultyLabel(difficulty)}</div>
+                </div>
               </div>
             </div>
           </div>
