@@ -146,14 +146,14 @@ export default function FilwordResultsModal({
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-2 mt-4 text-sm">
+            <div className="grid grid-cols-2 gap-2 mt-4 text-xs sm:text-sm">
               <div className="bg-white/70 rounded-lg p-2">
                 <span className="text-gray-600">Тема:</span>
                 <span className="font-bold ml-1 text-gray-800">{theme}</span>
               </div>
               <div className="bg-white/70 rounded-lg p-2">
                 <span className="text-gray-600">Сложность:</span>
-                <span className="font-bold ml-1 text-gray-800">{getDifficultyLabel(difficulty)}</span>
+                <span className="font-bold ml-1 text-gray-800 break-words">{getDifficultyLabel(difficulty)}</span>
               </div>
             </div>
           </div>
@@ -219,7 +219,7 @@ export default function FilwordResultsModal({
           </div>
 
           {/* Кнопки действий */}
-          <div className="flex gap-3">
+          <div className="flex">
             <Button 
               onClick={() => {
                 const studentData = localStorage.getItem('studentData');
@@ -233,20 +233,11 @@ export default function FilwordResultsModal({
                   navigate('/');
                 }
               }}
-              className="flex-1"
+              className="w-full"
               size="lg"
-              variant="outline"
             >
               <Icon name="Home" size={18} className="mr-2" />
               На главную
-            </Button>
-            <Button 
-              onClick={onClose}
-              className="flex-1"
-              size="lg"
-            >
-              <Icon name="X" size={18} className="mr-2" />
-              Закрыть
             </Button>
           </div>
         </div>
