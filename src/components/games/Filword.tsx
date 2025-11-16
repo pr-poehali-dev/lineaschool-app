@@ -85,15 +85,36 @@ export default function Filword({ difficulty, theme, showWords = true, onComplet
 
     const newWords: Word[] = [];
     const usedCells = new Set<string>();
+    
+    // Ensure both horizontal and vertical words by forcing direction for first words
+    const minWordsPerDirection = Math.floor(themeWords.length / 3);
+    let horizontalCount = 0;
+    let verticalCount = 0;
 
     themeWords.forEach((word, index) => {
       let placed = false;
       let attempts = 0;
       const maxAttempts = 100;
+      
+      // Determine preferred direction to ensure mix
+      let preferHorizontal: boolean | null = null;
+      if (horizontalCount < minWordsPerDirection && index < minWordsPerDirection) {
+        preferHorizontal = true;
+      } else if (verticalCount < minWordsPerDirection && index < minWordsPerDirection * 2) {
+        preferHorizontal = false;
+      }
 
       while (!placed && attempts < maxAttempts) {
         attempts++;
-        const horizontal = Math.random() > 0.5;
+        
+        // Choose direction based on preference or randomly
+        let horizontal: boolean;
+        if (preferHorizontal !== null && attempts <= maxAttempts / 2) {
+          horizontal = preferHorizontal;
+        } else {
+          horizontal = Math.random() > 0.5;
+        }
+        
         const row = Math.floor(Math.random() * gridSize);
         const col = Math.floor(Math.random() * gridSize);
 
@@ -115,6 +136,7 @@ export default function Filword({ difficulty, theme, showWords = true, onComplet
               cells.push({ row, col: col + i });
             }
             newWords.push({ text: word, found: false, cells });
+            horizontalCount++;
             placed = true;
           }
         } else if (!horizontal && row + word.length <= gridSize) {
@@ -135,6 +157,7 @@ export default function Filword({ difficulty, theme, showWords = true, onComplet
               cells.push({ row: row + i, col });
             }
             newWords.push({ text: word, found: false, cells });
+            verticalCount++;
             placed = true;
           }
         }
