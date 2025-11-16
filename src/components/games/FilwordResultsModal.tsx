@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
@@ -33,6 +34,7 @@ export default function FilwordResultsModal({
   difficulty,
   studentName = 'Гость'
 }: FilwordResultsModalProps) {
+  const navigate = useNavigate();
   const [leaderboard, setLeaderboard] = useState<GameResult[]>([]);
   const [loading, setLoading] = useState(false);
 
@@ -218,6 +220,26 @@ export default function FilwordResultsModal({
 
           {/* Кнопки действий */}
           <div className="flex gap-3">
+            <Button 
+              onClick={() => {
+                const studentData = localStorage.getItem('studentData');
+                const userData = localStorage.getItem('lineaschool_current_user');
+                
+                if (studentData) {
+                  navigate('/cabinet');
+                } else if (userData) {
+                  navigate('/dashboard');
+                } else {
+                  navigate('/');
+                }
+              }}
+              className="flex-1"
+              size="lg"
+              variant="outline"
+            >
+              <Icon name="Home" size={18} className="mr-2" />
+              На главную
+            </Button>
             <Button 
               onClick={onClose}
               className="flex-1"
