@@ -4,6 +4,7 @@ import { THEMES_DATA } from './FilwordThemesData';
 import FilwordHeader from './FilwordHeader';
 import FilwordGrid from './FilwordGrid';
 import FilwordWordList from './FilwordWordList';
+import FilwordResultsModal from './FilwordResultsModal';
 
 interface FilwordProps {
   difficulty: 'easy' | 'medium' | 'hard';
@@ -41,6 +42,8 @@ export default function Filword({ difficulty, theme, showWords = true, onComplet
   const [shake, setShake] = useState(false);
   const [confetti, setConfetti] = useState<Array<{id: number, x: number, y: number, color: string}>>([]);
   const confettiIdRef = useRef(0);
+  const [showResultsModal, setShowResultsModal] = useState(false);
+  const [finalScore, setFinalScore] = useState({ score: 0, maxScore: 0, timeSpent: 0 });
 
   useEffect(() => {
     initializeGame();
@@ -210,6 +213,8 @@ export default function Filword({ difficulty, theme, showWords = true, onComplet
   const handleGameEnd = () => {
     const foundCount = words.filter(w => w.found).length;
     const timeSpent = Math.floor((Date.now() - startTime) / 1000);
+    setFinalScore({ score: foundCount, maxScore: words.length, timeSpent });
+    setShowResultsModal(true);
     onComplete?.(foundCount, words.length, timeSpent);
   };
 
@@ -342,6 +347,17 @@ export default function Filword({ difficulty, theme, showWords = true, onComplet
           <li className="flex items-start gap-2">🧠 <span>Память и быстроту мышления</span></li>
         </ul>
       </Card>
+
+      <FilwordResultsModal
+        isOpen={showResultsModal}
+        onClose={() => setShowResultsModal(false)}
+        score={finalScore.score}
+        maxScore={finalScore.maxScore}
+        timeSpent={finalScore.timeSpent}
+        theme={theme}
+        difficulty={difficulty}
+        studentName={localStorage.getItem('studentData') ? JSON.parse(localStorage.getItem('studentData') || '{}').fullName : 'Гость'}
+      />
     </div>
   );
 }
