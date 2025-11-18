@@ -55,6 +55,8 @@ export const DoodleJumpGame = ({
   const [musicEnabled, setMusicEnabled] = useState(true);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const crocoImageRef = useRef<HTMLImageElement | null>(null);
+  const successSoundRef = useRef<HTMLAudioElement | null>(null);
+  const errorSoundRef = useRef<HTMLAudioElement | null>(null);
   
   const playerRef = useRef<Player>({
     x: CANVAS_WIDTH / 2 - PLAYER_WIDTH / 2,
@@ -117,6 +119,16 @@ export const DoodleJumpGame = ({
     audio.volume = 0.3;
     audioRef.current = audio;
     
+    const successSound = new Audio();
+    successSound.src = 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAIlYAAESsAAACABAAZGF0YQAAAAA=';
+    successSound.volume = 0.5;
+    successSoundRef.current = successSound;
+    
+    const errorSound = new Audio();
+    errorSound.src = 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAIlYAAESsAAACABAAZGF0YQAAAAA=';
+    errorSound.volume = 0.4;
+    errorSoundRef.current = errorSound;
+    
     return () => {
       audio.pause();
     };
@@ -141,9 +153,17 @@ export const DoodleJumpGame = ({
             platform.isCorrect = platform.phoneme === correctPhoneme;
             
             if (platform.isCorrect) {
+              if (successSoundRef.current) {
+                successSoundRef.current.currentTime = 0;
+                successSoundRef.current.play().catch(() => {});
+              }
               setScore((prev) => prev + 10);
               nextWord();
             } else {
+              if (errorSoundRef.current) {
+                errorSoundRef.current.currentTime = 0;
+                errorSoundRef.current.play().catch(() => {});
+              }
               platform.broken = true;
               setLives((prev) => {
                 const newLives = prev - 1;
