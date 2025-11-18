@@ -53,7 +53,7 @@ export const DoodleJumpGame = ({
   const [gameOver, setGameOver] = useState(false);
   const [currentWord, setCurrentWord] = useState('');
   const [correctPhoneme, setCorrectPhoneme] = useState('');
-  const [musicEnabled, setMusicEnabled] = useState(true);
+  const [musicEnabled, setMusicEnabled] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const crocoImageRef = useRef<HTMLImageElement | null>(null);
   const successSoundRef = useRef<HTMLAudioElement | null>(null);
@@ -145,11 +145,7 @@ export const DoodleJumpGame = ({
       crocoImageRef.current = img;
     };
     
-    const audio = new Audio();
-    audio.src = 'data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBjiL0fPTfC4GJHzJ8N+UQAoVXrXq7KlXFQtIoeHzvmsiCTmL0vLUfC4HJXzJ8OCVQQsVX7Xq7KpXFQtJouHzvmwjCToM0/LVfC8HJXzK8OGVQQsWYLbq7KpYFgtJouHzvm0jCjsM0/PWfC8IJXzK8OGWQgsWYLbr7KtZFgtKo+H0v24kCzsN1PPWfDAIJn3L8OKXQwsXYbjr7KtZFwxKo+H0wG8lCzwN1PPXfTAIJn3L8OKXQwwXYbjr7K1aFwxLpOH0wG8lDDwO1fPXfTEJJn3M8OOYQwwYYrjr7K1aGAxLpOL0wXAlDDwO1fPYfjEJJ37M8OOYRAwYYrns7K5bGAxMpeLzwnAmDD0O1vPYfjEKKH7M8OSZRAwZY7ns7K5bGQxMpeLzwnAmDT0P1vPZfzIKKH/M8OSZRQwZY7ns7a9cGQxNpuLzw3EmDT4P1/PZfzIKKH/N8OWaRQwaZLrs7a9cGgxNpuPzw3EmDj4Q1/PafzMLKIDN8OWaRgwaZLrs7bBdGgxOpuPzxHInDj4Q2PPafzMLKYDN8OWbRgwbZbvt7bBdGwxPp+Pzw3InDz8Q2PPbgDQMKYHO8OacRgwbZbvt7bFeGwxPp+Tzw3IoED8R2fPbgDQNKYHO8OacRwwcZrvt7rJeHAxQqOTzxHIoED8R2fPcgTQNKoLO8OedRwwcZ7zuelkdHQxRqOT0xXMpEUAS2vPcgTUOKoLO8OedSAwdaLzu';
-    audio.loop = true;
-    audio.volume = 0.3;
-    audioRef.current = audio;
+    audioRef.current = null;
     
     const successSound = new Audio();
     successSound.src = 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAIlYAAESsAAACABAAZGF0YQAAAAA=';
@@ -211,19 +207,19 @@ export const DoodleJumpGame = ({
             }
             platform.broken = true;
             
-            setTimeout(() => {
-              setLives((prev) => {
-                const newLives = prev - 1;
-                if (newLives <= 0) {
-                  setGameOver(true);
-                }
-                return newLives;
-              });
-              
-              player.y = CANVAS_HEIGHT - 200;
-              player.x = CANVAS_WIDTH / 2 - PLAYER_WIDTH / 2;
-              player.velocityY = 0;
-            }, 500);
+            setLives((prev) => {
+              const newLives = prev - 1;
+              if (newLives <= 0) {
+                setGameOver(true);
+              } else {
+                setTimeout(() => {
+                  player.y = CANVAS_HEIGHT - 200;
+                  player.x = CANVAS_WIDTH / 2 - PLAYER_WIDTH / 2;
+                  player.velocityY = 0;
+                }, 300);
+              }
+              return newLives;
+            });
           }
           
           break;
@@ -373,15 +369,13 @@ export const DoodleJumpGame = ({
   }, [gameOver, checkCollision, updatePlatforms]);
 
   useEffect(() => {
+    if (!gameStartedRef.current) {
+      gameStartedRef.current = true;
+      gameLoop();
+    }
+
     const handleKeyDown = (e: KeyboardEvent) => {
       keysRef.current[e.key] = true;
-      if (!gameStartedRef.current) {
-        gameStartedRef.current = true;
-        if (musicEnabled && audioRef.current) {
-          audioRef.current.play().catch(() => {});
-        }
-        gameLoop();
-      }
     };
 
     const handleKeyUp = (e: KeyboardEvent) => {
