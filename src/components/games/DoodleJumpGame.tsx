@@ -52,6 +52,9 @@ export const DoodleJumpGame = ({
   const [gameOver, setGameOver] = useState(false);
   const [currentWord, setCurrentWord] = useState('');
   const [correctPhoneme, setCorrectPhoneme] = useState('');
+  const [musicEnabled, setMusicEnabled] = useState(true);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const crocoImageRef = useRef<HTMLImageElement | null>(null);
   
   const playerRef = useRef<Player>({
     x: CANVAS_WIDTH / 2 - PLAYER_WIDTH / 2,
@@ -103,6 +106,20 @@ export const DoodleJumpGame = ({
   useEffect(() => {
     initPlatforms();
     nextWord();
+    
+    const img = new Image();
+    img.src = 'https://cdn.poehali.dev/projects/e88043a3-b424-4f26-8a14-df7debe540b3/files/44e28c3e-7c4a-4b93-bf1a-174b17c3e5c2.jpg';
+    crocoImageRef.current = img;
+    
+    const audio = new Audio();
+    audio.src = 'data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBjiL0fPTfC4GJHzJ8N+UQAoVXrXq7KlXFQtIoeHzvmsiCTmL0vLUfC4HJXzJ8OCVQQsVX7Xq7KpXFQtJouHzvmwjCToM0/LVfC8HJXzK8OGVQQsWYLbq7KpYFgtJouHzvm0jCjsM0/PWfC8IJXzK8OGWQgsWYLbr7KtZFgtKo+H0v24kCzsN1PPWfDAIJn3L8OKXQwsXYbjr7KtZFwxKo+H0wG8lCzwN1PPXfTAIJn3L8OKXQwwXYbjr7K1aFwxLpOH0wG8lDDwO1fPXfTEJJn3M8OOYQwwYYrjr7K1aGAxLpOL0wXAlDDwO1fPYfjEJJ37M8OOYRAwYYrns7K5bGAxMpeLzwnAmDD0O1vPYfjEKKH7M8OSZRAwZY7ns7K5bGQxMpeLzwnAmDT0P1vPZfzIKKH/M8OSZRQwZY7ns7a9cGQxNpuLzw3EmDT4P1/PZfzIKKH/N8OWaRQwaZLrs7a9cGgxNpuPzw3EmDj4Q1/PafzMLKIDN8OWaRgwaZLrs7bBdGgxOpuPzxHInDj4Q2PPafzMLKYDN8OWbRgwbZbvt7bBdGwxPp+Pzw3InDz8Q2PPbgDQMKYHO8OacRgwbZbvt7bFeGwxPp+Tzw3IoED8R2fPbgDQNKYHO8OacRwwcZrvt7rJeHAxQqOTzxHIoED8R2fPcgTQNKoLO8OedRwwcZ7zuelkdHQxRqOT0xXMpEUAS2vPcgTUOKoLO8OedSAwdaLzu';
+    audio.loop = true;
+    audio.volume = 0.3;
+    audioRef.current = audio;
+    
+    return () => {
+      audio.pause();
+    };
   }, [initPlatforms, nextWord]);
 
   const checkCollision = useCallback(() => {
@@ -239,11 +256,21 @@ export const DoodleJumpGame = ({
       );
     });
 
-    ctx.fillStyle = '#22c55e';
-    ctx.fillRect(player.x, player.y, player.width, player.height);
-    
-    ctx.font = 'bold 24px Arial';
-    ctx.fillText('🐊', player.x + player.width / 2, player.y + player.height / 2 + 8);
+    if (crocoImageRef.current && crocoImageRef.current.complete) {
+      ctx.drawImage(
+        crocoImageRef.current,
+        player.x,
+        player.y,
+        player.width,
+        player.height
+      );
+    } else {
+      ctx.fillStyle = '#22c55e';
+      ctx.fillRect(player.x, player.y, player.width, player.height);
+      ctx.font = 'bold 24px Arial';
+      ctx.textAlign = 'center';
+      ctx.fillText('🐊', player.x + player.width / 2, player.y + player.height / 2 + 8);
+    }
 
     animationRef.current = requestAnimationFrame(gameLoop);
   }, [gameOver, checkCollision, updatePlatforms]);
@@ -253,6 +280,9 @@ export const DoodleJumpGame = ({
       keysRef.current[e.key] = true;
       if (!gameStartedRef.current) {
         gameStartedRef.current = true;
+        if (musicEnabled && audioRef.current) {
+          audioRef.current.play().catch(() => {});
+        }
         gameLoop();
       }
     };
@@ -288,6 +318,19 @@ export const DoodleJumpGame = ({
     speak(currentWord);
   };
 
+  const toggleMusic = () => {
+    const newState = !musicEnabled;
+    setMusicEnabled(newState);
+    
+    if (audioRef.current) {
+      if (newState && gameStartedRef.current) {
+        audioRef.current.play().catch(() => {});
+      } else {
+        audioRef.current.pause();
+      }
+    }
+  };
+
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-b from-sky-200 to-sky-100 p-4">
       <div className="bg-white rounded-3xl shadow-2xl p-6 max-w-md w-full">
@@ -303,9 +346,14 @@ export const DoodleJumpGame = ({
             ))}
           </div>
           <div className="text-2xl font-bold text-purple-600">Счёт: {score}</div>
-          <Button onClick={onQuit} variant="ghost" size="icon">
-            <Icon name="X" size={24} />
-          </Button>
+          <div className="flex gap-2">
+            <Button onClick={toggleMusic} variant="ghost" size="icon">
+              <Icon name={musicEnabled ? 'Volume2' : 'VolumeX'} size={20} />
+            </Button>
+            <Button onClick={onQuit} variant="ghost" size="icon">
+              <Icon name="X" size={24} />
+            </Button>
+          </div>
         </div>
 
         <div className="mb-4 text-center">
