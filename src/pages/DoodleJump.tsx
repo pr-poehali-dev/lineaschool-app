@@ -6,29 +6,28 @@ import Icon from '@/components/ui/icon';
 interface Platform {
   x: number;
   y: number;
-  type: 'normal' | 'moving' | 'breakable' | 'spring';
+  width: number;
+  height: number;
 }
 
-interface Doodler {
+interface Player {
   x: number;
   y: number;
   width: number;
   height: number;
-  velocityX: number;
-  velocityY: number;
+  dx: number;
+  dy: number;
 }
 
-const CANVAS_WIDTH = 400;
+const CANVAS_WIDTH = 450;
 const CANVAS_HEIGHT = 600;
-const DOODLER_WIDTH = 60;
-const DOODLER_HEIGHT = 60;
-const PLATFORM_WIDTH = 65;
-const PLATFORM_HEIGHT = 15;
-const GRAVITY = 0.33;
-const INITIAL_VELOCITY_Y = -8;
-const MAX_VELOCITY_X = 5;
-const PLATFORM_GAP_MIN = 40;
-const PLATFORM_GAP_MAX = 90;
+const PLAYER_WIDTH = 50;
+const PLAYER_HEIGHT = 50;
+const PLATFORM_WIDTH = 70;
+const PLATFORM_HEIGHT = 18;
+const GRAVITY = 0.3;
+const JUMP_VELOCITY = -9;
+const MOVE_SPEED = 4;
 
 export default function DoodleJump() {
   const navigate = useNavigate();
@@ -38,71 +37,52 @@ export default function DoodleJump() {
   const [gameOver, setGameOver] = useState(false);
   const [gameStarted, setGameStarted] = useState(false);
   
-  const doodlerRef = useRef<Doodler>({
-    x: CANVAS_WIDTH / 2 - DOODLER_WIDTH / 2,
-    y: 200,
-    width: DOODLER_WIDTH,
-    height: DOODLER_HEIGHT,
-    velocityX: 0,
-    velocityY: INITIAL_VELOCITY_Y,
+  const playerRef = useRef<Player>({
+    x: CANVAS_WIDTH / 2 - PLAYER_WIDTH / 2,
+    y: CANVAS_HEIGHT - 150,
+    width: PLAYER_WIDTH,
+    height: PLAYER_HEIGHT,
+    dx: 0,
+    dy: 0,
   });
   
   const platformsRef = useRef<Platform[]>([]);
   const keysRef = useRef<{ left: boolean; right: boolean }>({ left: false, right: false });
   const animationRef = useRef<number>();
-  const platformYRef = useRef(CANVAS_HEIGHT - 50);
+  const baseRef = useRef(0);
   const scoreRef = useRef(0);
-  const maxHeightRef = useRef(CANVAS_HEIGHT);
 
-  const createPlatform = (y: number): Platform => {
-    const rand = Math.random();
-    let type: 'normal' | 'moving' | 'breakable' | 'spring' = 'normal';
-    
-    if (y < 200) {
-      if (rand < 0.15) type = 'moving';
-      else if (rand < 0.25) type = 'breakable';
-      else if (rand < 0.30) type = 'spring';
-    } else if (y < 400) {
-      if (rand < 0.10) type = 'moving';
-      else if (rand < 0.18) type = 'breakable';
-    }
-    
+  const createPlatform = (): Platform => {
     return {
       x: Math.random() * (CANVAS_WIDTH - PLATFORM_WIDTH),
-      y,
-      type,
+      y: 0,
+      width: PLATFORM_WIDTH,
+      height: PLATFORM_HEIGHT,
     };
   };
 
   const initGame = () => {
     const platforms: Platform[] = [];
-    let y = CANVAS_HEIGHT - 50;
     
-    platforms.push({
-      x: CANVAS_WIDTH / 2 - PLATFORM_WIDTH / 2,
-      y: y,
-      type: 'normal',
-    });
-    
-    while (y > -100) {
-      y -= PLATFORM_GAP_MIN + Math.random() * (PLATFORM_GAP_MAX - PLATFORM_GAP_MIN);
-      platforms.push(createPlatform(y));
+    for (let i = 0; i < CANVAS_HEIGHT / 80; i++) {
+      const platform = createPlatform();
+      platform.y = CANVAS_HEIGHT - 50 - i * 80;
+      platforms.push(platform);
     }
     
     platformsRef.current = platforms;
-    platformYRef.current = y;
     
-    doodlerRef.current = {
-      x: CANVAS_WIDTH / 2 - DOODLER_WIDTH / 2,
+    playerRef.current = {
+      x: CANVAS_WIDTH / 2 - PLAYER_WIDTH / 2,
       y: CANVAS_HEIGHT - 150,
-      width: DOODLER_WIDTH,
-      height: DOODLER_HEIGHT,
-      velocityX: 0,
-      velocityY: INITIAL_VELOCITY_Y,
+      width: PLAYER_WIDTH,
+      height: PLAYER_HEIGHT,
+      dx: 0,
+      dy: 0,
     };
     
+    baseRef.current = 0;
     scoreRef.current = 0;
-    maxHeightRef.current = CANVAS_HEIGHT;
     setScore(0);
     setGameOver(false);
     setGameStarted(true);
@@ -120,83 +100,68 @@ export default function DoodleJump() {
     const ctx = canvas?.getContext('2d');
     if (!canvas || !ctx) return;
 
-    const doodler = doodlerRef.current;
+    const player = playerRef.current;
+    const platforms = platformsRef.current;
 
+    player.dx = 0;
     if (keysRef.current.left) {
-      doodler.velocityX = -MAX_VELOCITY_X;
-    } else if (keysRef.current.right) {
-      doodler.velocityX = MAX_VELOCITY_X;
-    } else {
-      doodler.velocityX *= 0.9;
+      player.dx = -MOVE_SPEED;
+    }
+    if (keysRef.current.right) {
+      player.dx = MOVE_SPEED;
     }
 
-    doodler.x += doodler.velocityX;
+    player.dy += GRAVITY;
+    player.x += player.dx;
+    player.y += player.dy;
 
-    if (doodler.x > CANVAS_WIDTH) {
-      doodler.x = 0;
-    } else if (doodler.x + doodler.width < 0) {
-      doodler.x = CANVAS_WIDTH;
+    if (player.x < 0) {
+      player.x = CANVAS_WIDTH;
+    } else if (player.x > CANVAS_WIDTH) {
+      player.x = 0;
     }
 
-    doodler.velocityY += GRAVITY;
-    doodler.y += doodler.velocityY;
-
-    if (doodler.velocityY < 0 && doodler.y < CANVAS_HEIGHT / 2) {
-      const dy = CANVAS_HEIGHT / 2 - doodler.y;
-      doodler.y = CANVAS_HEIGHT / 2;
-
-      platformsRef.current.forEach((platform) => {
-        platform.y += dy;
-      });
-
-      platformsRef.current = platformsRef.current.filter((p) => p.y < CANVAS_HEIGHT + 50);
-
-      while (platformsRef.current.length < 20) {
-        platformYRef.current -= PLATFORM_GAP_MIN + Math.random() * (PLATFORM_GAP_MAX - PLATFORM_GAP_MIN);
-        platformsRef.current.push(createPlatform(platformYRef.current));
-      }
-
-      if (doodler.y < maxHeightRef.current) {
-        const points = Math.floor((maxHeightRef.current - doodler.y) / 10);
-        scoreRef.current += points;
-        maxHeightRef.current = doodler.y;
-        setScore(scoreRef.current);
+    if (player.dy > 0) {
+      for (let i = 0; i < platforms.length; i++) {
+        const platform = platforms[i];
+        if (
+          player.x < platform.x + platform.width &&
+          player.x + player.width > platform.x &&
+          player.y + player.height > platform.y &&
+          player.y + player.height < platform.y + platform.height
+        ) {
+          player.dy = JUMP_VELOCITY;
+        }
       }
     }
 
-    platformsRef.current.forEach((platform, index) => {
-      if (platform.type === 'moving') {
-        if (!platformsRef.current[index].hasOwnProperty('direction')) {
-          (platform as any).direction = Math.random() > 0.5 ? 1 : -1;
-        }
-        const dir = (platform as any).direction;
-        platform.x += dir * 2;
-        
-        if (platform.x <= 0 || platform.x >= CANVAS_WIDTH - PLATFORM_WIDTH) {
-          (platform as any).direction *= -1;
+    if (player.y - player.height / 2 < CANVAS_HEIGHT / 2) {
+      const delta = CANVAS_HEIGHT / 2 - (player.y - player.height / 2);
+      player.y += delta;
+
+      for (let i = 0; i < platforms.length; i++) {
+        platforms[i].y += delta;
+      }
+
+      while (platforms[platforms.length - 1].y > 0) {
+        const newPlatform = createPlatform();
+        newPlatform.y = platforms[platforms.length - 1].y - 60 - Math.random() * 20;
+        platforms.push(newPlatform);
+      }
+
+      for (let i = 0; i < platforms.length; i++) {
+        if (platforms[i].y > CANVAS_HEIGHT) {
+          platforms.splice(i, 1);
+          i--;
         }
       }
 
-      if (
-        doodler.velocityY > 0 &&
-        doodler.y + doodler.height >= platform.y &&
-        doodler.y + doodler.height <= platform.y + PLATFORM_HEIGHT &&
-        doodler.x + doodler.width > platform.x &&
-        doodler.x < platform.x + PLATFORM_WIDTH
-      ) {
-        if (platform.type === 'breakable') {
-          platformsRef.current.splice(index, 1);
-        } else {
-          if (platform.type === 'spring') {
-            doodler.velocityY = INITIAL_VELOCITY_Y * 2;
-          } else {
-            doodler.velocityY = INITIAL_VELOCITY_Y;
-          }
-        }
-      }
-    });
+      baseRef.current += delta;
+      scoreRef.current = Math.floor(baseRef.current / 10);
+      setScore(scoreRef.current);
+    }
 
-    if (doodler.y > CANVAS_HEIGHT) {
+    if (player.y > CANVAS_HEIGHT) {
       setGameOver(true);
       if (scoreRef.current > highScore) {
         setHighScore(scoreRef.current);
@@ -205,57 +170,24 @@ export default function DoodleJump() {
       return;
     }
 
-    ctx.fillStyle = '#F0F8FF';
+    ctx.fillStyle = '#FFFFCC';
     ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
 
-    for (let i = 0; i < CANVAS_WIDTH; i += 20) {
-      for (let j = 0; j < CANVAS_HEIGHT; j += 20) {
-        if ((i + j) % 40 === 0) {
-          ctx.fillStyle = '#E8F4FF';
-          ctx.fillRect(i, j, 10, 10);
-        }
-      }
+    ctx.fillStyle = '#3CB371';
+    for (let i = 0; i < platforms.length; i++) {
+      const platform = platforms[i];
+      ctx.fillRect(platform.x, platform.y, platform.width, platform.height);
     }
 
-    platformsRef.current.forEach((platform) => {
-      if (platform.type === 'normal') {
-        ctx.fillStyle = '#7AC74F';
-      } else if (platform.type === 'moving') {
-        ctx.fillStyle = '#4F9FD9';
-      } else if (platform.type === 'breakable') {
-        ctx.fillStyle = '#8B6F47';
-      } else if (platform.type === 'spring') {
-        ctx.fillStyle = '#FF6B6B';
-      }
-
-      ctx.beginPath();
-      ctx.roundRect(platform.x, platform.y, PLATFORM_WIDTH, PLATFORM_HEIGHT, 5);
-      ctx.fill();
-
-      ctx.strokeStyle = '#fff';
-      ctx.lineWidth = 2;
-      ctx.stroke();
-    });
-
-    ctx.fillStyle = '#FFE135';
-    ctx.fillRect(doodler.x, doodler.y, doodler.width, doodler.height);
-
-    ctx.fillStyle = '#000';
+    ctx.fillStyle = '#FF6347';
     ctx.beginPath();
-    ctx.arc(doodler.x + 15, doodler.y + 15, 4, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.beginPath();
-    ctx.arc(doodler.x + 45, doodler.y + 15, 4, 0, Math.PI * 2);
-    ctx.fill();
-
-    ctx.fillStyle = '#FF4757';
-    ctx.beginPath();
-    ctx.arc(doodler.x + 30, doodler.y + 35, 8, 0, Math.PI);
+    ctx.arc(player.x + player.width / 2, player.y + player.height / 2, player.width / 2, 0, Math.PI * 2);
     ctx.fill();
 
     ctx.fillStyle = '#000';
-    ctx.font = 'bold 24px Arial';
-    ctx.fillText(`${scoreRef.current}`, 20, 40);
+    ctx.font = 'bold 20px Arial';
+    ctx.fillText(`Счёт: ${scoreRef.current}`, 10, 30);
+    ctx.fillText(`Рекорд: ${highScore}`, 10, 60);
 
     animationRef.current = requestAnimationFrame(gameLoop);
   };
@@ -303,14 +235,10 @@ export default function DoodleJump() {
   }, [gameStarted, gameOver]);
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-b from-blue-50 to-blue-100 p-4">
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-b from-yellow-50 to-green-50 p-4">
       <div className="bg-white rounded-3xl shadow-2xl p-6 max-w-md w-full">
         <div className="flex justify-between items-center mb-4">
-          <div className="text-center">
-            <div className="text-sm text-gray-600">Рекорд</div>
-            <div className="text-2xl font-bold text-purple-600">{highScore}</div>
-          </div>
-          <div className="text-3xl font-black text-blue-600">
+          <div className="text-3xl font-black text-green-600">
             DOODLE JUMP
           </div>
           <Button onClick={() => navigate('/')} variant="ghost" size="icon">
@@ -323,7 +251,7 @@ export default function DoodleJump() {
             ref={canvasRef}
             width={CANVAS_WIDTH}
             height={CANVAS_HEIGHT}
-            className="border-4 border-blue-400 rounded-2xl w-full bg-sky-50"
+            className="border-4 border-green-400 rounded-2xl w-full"
             style={{ maxWidth: '100%', height: 'auto' }}
           />
           
@@ -361,9 +289,6 @@ export default function DoodleJump() {
         <div className="mt-4 text-center text-sm text-gray-600">
           <p className="font-semibold mb-2">Управление:</p>
           <p>← → стрелки или A D</p>
-          <p className="mt-2 text-xs">
-            🟢 Обычная • 🔵 Движущаяся • 🟤 Ломающаяся • 🔴 Пружина
-          </p>
         </div>
       </div>
     </div>
