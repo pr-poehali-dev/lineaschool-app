@@ -15,6 +15,7 @@ interface Platform {
 interface Player {
   x: number;
   y: number;
+  velocityX: number;
   velocityY: number;
   width: number;
   height: number;
@@ -30,14 +31,13 @@ interface DoodleJumpGameProps {
 
 const CANVAS_WIDTH = 400;
 const CANVAS_HEIGHT = 600;
-const PLATFORM_WIDTH = 100;
-const PLATFORM_HEIGHT = 20;
+const PLATFORM_WIDTH = 70;
+const PLATFORM_HEIGHT = 15;
 const PLAYER_WIDTH = 60;
 const PLAYER_HEIGHT = 60;
-const GRAVITY = 0.6;
-const JUMP_VELOCITY = -15;
-const MOVE_SPEED = 6;
-const PLATFORM_GAP = 120;
+const GRAVITY = 0.4;
+const JUMP_VELOCITY = -11;
+const MOVE_SPEED = 5;
 
 export const DoodleJumpGame = ({
   phoneme1,
@@ -53,15 +53,11 @@ export const DoodleJumpGame = ({
   const [gameOver, setGameOver] = useState(false);
   const [currentWord, setCurrentWord] = useState('');
   const [correctPhoneme, setCorrectPhoneme] = useState('');
-  const [musicEnabled, setMusicEnabled] = useState(false);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
-  const crocoImageRef = useRef<HTMLImageElement | null>(null);
-  const successSoundRef = useRef<HTMLAudioElement | null>(null);
-  const errorSoundRef = useRef<HTMLAudioElement | null>(null);
   
   const playerRef = useRef<Player>({
     x: CANVAS_WIDTH / 2 - PLAYER_WIDTH / 2,
-    y: CANVAS_HEIGHT - 200,
+    y: CANVAS_HEIGHT - 150,
+    velocityX: 0,
     velocityY: 0,
     width: PLAYER_WIDTH,
     height: PLAYER_HEIGHT,
@@ -71,8 +67,8 @@ export const DoodleJumpGame = ({
   const keysRef = useRef<{ [key: string]: boolean }>({});
   const animationRef = useRef<number>();
   const wordIndexRef = useRef(0);
-  const gameStartedRef = useRef(false);
-  const currentPlatformRowRef = useRef(0);
+  const highestYRef = useRef(0);
+  const crocoImageRef = useRef<HTMLImageElement | null>(null);
 
   const nextWord = useCallback(() => {
     if (wordIndexRef.current >= words.length) {
@@ -87,30 +83,16 @@ export const DoodleJumpGame = ({
     wordIndexRef.current++;
   }, [words, speak]);
 
-  const createPlatformPair = useCallback((y: number) => {
-    const leftX = 50;
-    const rightX = CANVAS_WIDTH - PLATFORM_WIDTH - 50;
-    
-    const isLeftCorrect = Math.random() > 0.5;
-    
-    return [
-      {
-        x: leftX,
-        y,
-        width: PLATFORM_WIDTH,
-        phoneme: isLeftCorrect ? phoneme1 : phoneme2,
-        isCorrect: null,
-        broken: false,
-      },
-      {
-        x: rightX,
-        y,
-        width: PLATFORM_WIDTH,
-        phoneme: isLeftCorrect ? phoneme2 : phoneme1,
-        isCorrect: null,
-        broken: false,
-      },
-    ];
+  const generatePlatform = useCallback((y: number): Platform => {
+    const phoneme = Math.random() > 0.5 ? phoneme1 : phoneme2;
+    return {
+      x: Math.random() * (CANVAS_WIDTH - PLATFORM_WIDTH),
+      y,
+      width: PLATFORM_WIDTH,
+      phoneme,
+      isCorrect: null,
+      broken: false,
+    };
   }, [phoneme1, phoneme2]);
 
   const initPlatforms = useCallback(() => {
@@ -118,7 +100,7 @@ export const DoodleJumpGame = ({
     
     const startPlatform: Platform = {
       x: CANVAS_WIDTH / 2 - PLATFORM_WIDTH / 2,
-      y: CANVAS_HEIGHT - 150,
+      y: CANVAS_HEIGHT - 100,
       width: PLATFORM_WIDTH,
       phoneme: '',
       isCorrect: null,
@@ -126,14 +108,13 @@ export const DoodleJumpGame = ({
     };
     platforms.push(startPlatform);
     
-    for (let i = 1; i <= 4; i++) {
-      const y = CANVAS_HEIGHT - 150 - i * PLATFORM_GAP;
-      platforms.push(...createPlatformPair(y));
+    for (let i = 1; i < 10; i++) {
+      platforms.push(generatePlatform(CANVAS_HEIGHT - 100 - i * 70));
     }
     
     platformsRef.current = platforms;
-    currentPlatformRowRef.current = 0;
-  }, [createPlatformPair]);
+    playerRef.current.velocityY = JUMP_VELOCITY;
+  }, [generatePlatform]);
 
   useEffect(() => {
     initPlatforms();
@@ -144,18 +125,6 @@ export const DoodleJumpGame = ({
     img.onload = () => {
       crocoImageRef.current = img;
     };
-    
-    audioRef.current = null;
-    
-    const successSound = new Audio();
-    successSound.src = 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAIlYAAESsAAACABAAZGF0YQAAAAA=';
-    successSound.volume = 0.5;
-    successSoundRef.current = successSound;
-    
-    const errorSound = new Audio();
-    errorSound.src = 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAIlYAAESsAAACABAAZGF0YQAAAAA=';
-    errorSound.volume = 0.4;
-    errorSoundRef.current = errorSound;
   }, [initPlatforms, nextWord]);
 
   const checkCollision = useCallback(() => {
@@ -165,56 +134,25 @@ export const DoodleJumpGame = ({
       for (const platform of platformsRef.current) {
         if (
           !platform.broken &&
-          player.x + player.width / 2 > platform.x &&
-          player.x + player.width / 2 < platform.x + platform.width &&
+          player.x + player.width > platform.x &&
+          player.x < platform.x + platform.width &&
           player.y + player.height > platform.y &&
-          player.y + player.height < platform.y + PLATFORM_HEIGHT + 10 &&
+          player.y + player.height < platform.y + PLATFORM_HEIGHT &&
           player.velocityY > 0
         ) {
           player.velocityY = JUMP_VELOCITY;
           
-          if (platform.phoneme === '' || platform.isCorrect !== null) {
-            continue;
-          }
-          
-          const isCorrect = platform.phoneme === correctPhoneme;
-          platform.isCorrect = isCorrect;
-          
-          if (isCorrect) {
-            if (successSoundRef.current) {
-              successSoundRef.current.currentTime = 0;
-              successSoundRef.current.play().catch(() => {});
-            }
-            setScore((prev) => prev + 10);
+          if (platform.phoneme && platform.phoneme !== '' && platform.isCorrect === null) {
+            const isCorrect = platform.phoneme === correctPhoneme;
+            platform.isCorrect = isCorrect;
             
-            const otherPlatform = platformsRef.current.find(
-              (p) => p.y === platform.y && p !== platform
-            );
-            if (otherPlatform) {
-              otherPlatform.broken = true;
+            if (isCorrect) {
+              setScore((prev) => prev + 10);
+              nextWord();
+            } else {
+              platform.broken = true;
+              player.velocityY = 2;
             }
-            
-            nextWord();
-          } else {
-            if (errorSoundRef.current) {
-              errorSoundRef.current.currentTime = 0;
-              errorSoundRef.current.play().catch(() => {});
-            }
-            platform.broken = true;
-            
-            setLives((prev) => {
-              const newLives = prev - 1;
-              if (newLives <= 0) {
-                setGameOver(true);
-              } else {
-                setTimeout(() => {
-                  player.y = CANVAS_HEIGHT - 200;
-                  player.x = CANVAS_WIDTH / 2 - PLAYER_WIDTH / 2;
-                  player.velocityY = 0;
-                }, 300);
-              }
-              return newLives;
-            });
           }
           
           break;
@@ -223,33 +161,43 @@ export const DoodleJumpGame = ({
     }
   }, [correctPhoneme, nextWord]);
 
-  const updatePlatforms = useCallback(() => {
+  const updateGame = useCallback(() => {
     const player = playerRef.current;
     
-    if (player.y < CANVAS_HEIGHT / 2.5) {
-      const shift = CANVAS_HEIGHT / 2.5 - player.y;
-      player.y = CANVAS_HEIGHT / 2.5;
+    if (player.y < CANVAS_HEIGHT / 3) {
+      const shift = CANVAS_HEIGHT / 3 - player.y;
+      player.y = CANVAS_HEIGHT / 3;
+      
+      highestYRef.current += shift;
       
       platformsRef.current = platformsRef.current.map((platform) => ({
         ...platform,
         y: platform.y + shift,
       }));
       
-      platformsRef.current = platformsRef.current.filter(
-        (platform) => platform.y < CANVAS_HEIGHT + 100
-      );
+      platformsRef.current = platformsRef.current.filter((p) => p.y < CANVAS_HEIGHT + 50);
       
-      const topPlatforms = platformsRef.current.filter((p) => p.phoneme !== '');
-      if (topPlatforms.length > 0) {
-        const topY = Math.min(...topPlatforms.map((p) => p.y));
-        
-        if (topY > -PLATFORM_GAP) {
-          const newY = topY - PLATFORM_GAP;
-          platformsRef.current.push(...createPlatformPair(newY));
-        }
+      while (platformsRef.current.length < 10) {
+        const minY = Math.min(...platformsRef.current.map((p) => p.y));
+        platformsRef.current.push(generatePlatform(minY - 70));
       }
     }
-  }, [createPlatformPair]);
+    
+    if (player.y > CANVAS_HEIGHT) {
+      setLives((prev) => {
+        const newLives = prev - 1;
+        if (newLives <= 0) {
+          setGameOver(true);
+        }
+        return newLives;
+      });
+      
+      player.y = CANVAS_HEIGHT / 2;
+      player.x = CANVAS_WIDTH / 2 - PLAYER_WIDTH / 2;
+      player.velocityY = JUMP_VELOCITY;
+      player.velocityX = 0;
+    }
+  }, [generatePlatform]);
 
   const gameLoop = useCallback(() => {
     const canvas = canvasRef.current;
@@ -261,34 +209,26 @@ export const DoodleJumpGame = ({
     const player = playerRef.current;
 
     if (keysRef.current['ArrowLeft'] || keysRef.current['a'] || keysRef.current['A']) {
-      player.x -= MOVE_SPEED;
-    }
-    if (keysRef.current['ArrowRight'] || keysRef.current['d'] || keysRef.current['D']) {
-      player.x += MOVE_SPEED;
+      player.velocityX = -MOVE_SPEED;
+    } else if (keysRef.current['ArrowRight'] || keysRef.current['d'] || keysRef.current['D']) {
+      player.velocityX = MOVE_SPEED;
+    } else {
+      player.velocityX *= 0.8;
     }
 
-    player.x = Math.max(0, Math.min(CANVAS_WIDTH - player.width, player.x));
+    player.x += player.velocityX;
+    
+    if (player.x < -player.width) {
+      player.x = CANVAS_WIDTH;
+    } else if (player.x > CANVAS_WIDTH) {
+      player.x = -player.width;
+    }
 
     player.velocityY += GRAVITY;
     player.y += player.velocityY;
 
-    if (player.y > CANVAS_HEIGHT) {
-      setLives((prev) => {
-        const newLives = prev - 1;
-        if (newLives <= 0) {
-          setGameOver(true);
-        }
-        return newLives;
-      });
-      player.y = CANVAS_HEIGHT - 200;
-      player.x = CANVAS_WIDTH / 2 - PLAYER_WIDTH / 2;
-      player.velocityY = 0;
-    }
-
     checkCollision();
-    updatePlatforms();
-
-    ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+    updateGame();
 
     const gradient = ctx.createLinearGradient(0, 0, 0, CANVAS_HEIGHT);
     gradient.addColorStop(0, '#87CEEB');
@@ -298,9 +238,10 @@ export const DoodleJumpGame = ({
 
     platformsRef.current.forEach((platform) => {
       if (platform.broken) {
-        ctx.fillStyle = '#ef4444';
-        ctx.globalAlpha = 0.3;
-      } else if (platform.isCorrect === true) {
+        return;
+      }
+      
+      if (platform.isCorrect === true) {
         ctx.fillStyle = '#22c55e';
       } else if (platform.isCorrect === false) {
         ctx.fillStyle = '#ef4444';
@@ -311,16 +252,15 @@ export const DoodleJumpGame = ({
       }
       
       ctx.fillRect(platform.x, platform.y, platform.width, PLATFORM_HEIGHT);
-      ctx.globalAlpha = 1;
 
-      if (platform.phoneme && !platform.broken) {
+      if (platform.phoneme && platform.phoneme !== '') {
         ctx.fillStyle = '#000';
-        ctx.font = 'bold 18px Arial';
+        ctx.font = 'bold 16px Arial';
         ctx.textAlign = 'center';
         ctx.fillText(
           `[${platform.phoneme}]`,
           platform.x + platform.width / 2,
-          platform.y - 8
+          platform.y - 5
         );
       }
     });
@@ -361,7 +301,7 @@ export const DoodleJumpGame = ({
     }
 
     animationRef.current = requestAnimationFrame(gameLoop);
-  }, [gameOver, checkCollision, updatePlatforms]);
+  }, [gameOver, checkCollision, updateGame]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -375,10 +315,7 @@ export const DoodleJumpGame = ({
     window.addEventListener('keydown', handleKeyDown);
     window.addEventListener('keyup', handleKeyUp);
 
-    if (!gameStartedRef.current) {
-      gameStartedRef.current = true;
-      gameLoop();
-    }
+    gameLoop();
 
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
@@ -404,19 +341,6 @@ export const DoodleJumpGame = ({
     speak(currentWord, 0.9);
   };
 
-  const toggleMusic = () => {
-    const newState = !musicEnabled;
-    setMusicEnabled(newState);
-    
-    if (audioRef.current) {
-      if (newState && gameStartedRef.current) {
-        audioRef.current.play().catch(() => {});
-      } else {
-        audioRef.current.pause();
-      }
-    }
-  };
-
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-b from-sky-200 to-sky-100 p-4">
       <div className="bg-white rounded-3xl shadow-2xl p-6 max-w-md w-full">
@@ -432,18 +356,13 @@ export const DoodleJumpGame = ({
             ))}
           </div>
           <div className="text-2xl font-bold text-purple-600">Счёт: {score}</div>
-          <div className="flex gap-2">
-            <Button onClick={toggleMusic} variant="ghost" size="icon">
-              <Icon name={musicEnabled ? 'Volume2' : 'VolumeX'} size={20} />
-            </Button>
-            <Button onClick={onQuit} variant="ghost" size="icon">
-              <Icon name="X" size={24} />
-            </Button>
-          </div>
+          <Button onClick={onQuit} variant="ghost" size="icon">
+            <Icon name="X" size={24} />
+          </Button>
         </div>
 
         <div className="mb-4 text-center">
-          <div className="text-sm text-gray-600 mb-2">Слушай слово и прыгай на правильный звук:</div>
+          <div className="text-sm text-gray-600 mb-2">Прыгай на плитки с правильным звуком:</div>
           <Button onClick={handleReplay} variant="outline" size="lg" className="gap-2">
             <Icon name="Volume2" size={20} />
             Повторить слово
