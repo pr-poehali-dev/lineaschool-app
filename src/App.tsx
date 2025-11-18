@@ -13,7 +13,6 @@ import TeacherLogin from "./pages/TeacherLogin";
 import AdminLogin from "./pages/AdminLogin";
 import AdminSync from "./pages/AdminSync";
 import GameFilword from "./pages/GameFilword";
-import DoodleJump from "./pages/DoodleJump";
 
 const queryClient = new QueryClient();
 
@@ -32,7 +31,6 @@ const App = () => (
           <Route path="/cabinet" element={<StudentCabinet />} />
           <Route path="/dashboard" element={<Index />} />
           <Route path="/game/filword" element={<GameFilword />} />
-          <Route path="/game/doodle-jump" element={<DoodleJump />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
