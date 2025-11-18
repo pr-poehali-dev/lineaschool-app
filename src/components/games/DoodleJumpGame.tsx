@@ -8,7 +8,7 @@ interface Platform {
   y: number;
   width: number;
   phoneme: string;
-  isCorrect: boolean;
+  isCorrect: boolean | null;
   broken: boolean;
 }
 
@@ -30,13 +30,14 @@ interface DoodleJumpGameProps {
 
 const CANVAS_WIDTH = 400;
 const CANVAS_HEIGHT = 600;
-const PLATFORM_WIDTH = 80;
-const PLATFORM_HEIGHT = 15;
-const PLAYER_WIDTH = 50;
-const PLAYER_HEIGHT = 50;
-const GRAVITY = 0.5;
-const JUMP_VELOCITY = -12;
-const MOVE_SPEED = 5;
+const PLATFORM_WIDTH = 100;
+const PLATFORM_HEIGHT = 20;
+const PLAYER_WIDTH = 60;
+const PLAYER_HEIGHT = 60;
+const GRAVITY = 0.6;
+const JUMP_VELOCITY = -15;
+const MOVE_SPEED = 6;
+const PLATFORM_GAP = 120;
 
 export const DoodleJumpGame = ({
   phoneme1,
@@ -60,7 +61,7 @@ export const DoodleJumpGame = ({
   
   const playerRef = useRef<Player>({
     x: CANVAS_WIDTH / 2 - PLAYER_WIDTH / 2,
-    y: CANVAS_HEIGHT - 150,
+    y: CANVAS_HEIGHT - 200,
     velocityY: 0,
     width: PLAYER_WIDTH,
     height: PLAYER_HEIGHT,
@@ -71,6 +72,7 @@ export const DoodleJumpGame = ({
   const animationRef = useRef<number>();
   const wordIndexRef = useRef(0);
   const gameStartedRef = useRef(false);
+  const currentPlatformRowRef = useRef(0);
 
   const nextWord = useCallback(() => {
     if (wordIndexRef.current >= words.length) {
@@ -81,29 +83,57 @@ export const DoodleJumpGame = ({
     const wordObj = words[wordIndexRef.current];
     setCurrentWord(wordObj.word);
     setCorrectPhoneme(wordObj.phoneme);
-    speak(wordObj.word);
+    speak(wordObj.word, 0.9);
     wordIndexRef.current++;
   }, [words, speak]);
+
+  const createPlatformPair = useCallback((y: number) => {
+    const leftX = 50;
+    const rightX = CANVAS_WIDTH - PLATFORM_WIDTH - 50;
+    
+    const isLeftCorrect = Math.random() > 0.5;
+    
+    return [
+      {
+        x: leftX,
+        y,
+        width: PLATFORM_WIDTH,
+        phoneme: isLeftCorrect ? phoneme1 : phoneme2,
+        isCorrect: null,
+        broken: false,
+      },
+      {
+        x: rightX,
+        y,
+        width: PLATFORM_WIDTH,
+        phoneme: isLeftCorrect ? phoneme2 : phoneme1,
+        isCorrect: null,
+        broken: false,
+      },
+    ];
+  }, [phoneme1, phoneme2]);
 
   const initPlatforms = useCallback(() => {
     const platforms: Platform[] = [];
     
-    for (let i = 0; i < 7; i++) {
-      const y = CANVAS_HEIGHT - 100 - i * 80;
-      const phoneme = Math.random() > 0.5 ? phoneme1 : phoneme2;
-      
-      platforms.push({
-        x: Math.random() * (CANVAS_WIDTH - PLATFORM_WIDTH),
-        y,
-        width: PLATFORM_WIDTH,
-        phoneme,
-        isCorrect: false,
-        broken: false,
-      });
+    const startPlatform: Platform = {
+      x: CANVAS_WIDTH / 2 - PLATFORM_WIDTH / 2,
+      y: CANVAS_HEIGHT - 150,
+      width: PLATFORM_WIDTH,
+      phoneme: '',
+      isCorrect: null,
+      broken: false,
+    };
+    platforms.push(startPlatform);
+    
+    for (let i = 1; i <= 4; i++) {
+      const y = CANVAS_HEIGHT - 150 - i * PLATFORM_GAP;
+      platforms.push(...createPlatformPair(y));
     }
     
     platformsRef.current = platforms;
-  }, [phoneme1, phoneme2]);
+    currentPlatformRowRef.current = 0;
+  }, [createPlatformPair]);
 
   useEffect(() => {
     initPlatforms();
@@ -111,7 +141,9 @@ export const DoodleJumpGame = ({
     
     const img = new Image();
     img.src = 'https://cdn.poehali.dev/projects/e88043a3-b424-4f26-8a14-df7debe540b3/files/44e28c3e-7c4a-4b93-bf1a-174b17c3e5c2.jpg';
-    crocoImageRef.current = img;
+    img.onload = () => {
+      crocoImageRef.current = img;
+    };
     
     const audio = new Audio();
     audio.src = 'data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBjiL0fPTfC4GJHzJ8N+UQAoVXrXq7KlXFQtIoeHzvmsiCTmL0vLUfC4HJXzJ8OCVQQsVX7Xq7KpXFQtJouHzvmwjCToM0/LVfC8HJXzK8OGVQQsWYLbq7KpYFgtJouHzvm0jCjsM0/PWfC8IJXzK8OGWQgsWYLbr7KtZFgtKo+H0v24kCzsN1PPWfDAIJn3L8OKXQwsXYbjr7KtZFwxKo+H0wG8lCzwN1PPXfTAIJn3L8OKXQwwXYbjr7K1aFwxLpOH0wG8lDDwO1fPXfTEJJn3M8OOYQwwYYrjr7K1aGAxLpOL0wXAlDDwO1fPYfjEJJ37M8OOYRAwYYrns7K5bGAxMpeLzwnAmDD0O1vPYfjEKKH7M8OSZRAwZY7ns7K5bGQxMpeLzwnAmDT0P1vPZfzIKKH/M8OSZRQwZY7ns7a9cGQxNpuLzw3EmDT4P1/PZfzIKKH/N8OWaRQwaZLrs7a9cGgxNpuPzw3EmDj4Q1/PafzMLKIDN8OWaRgwaZLrs7bBdGgxOpuPzxHInDj4Q2PPafzMLKYDN8OWbRgwbZbvt7bBdGwxPp+Pzw3InDz8Q2PPbgDQMKYHO8OacRgwbZbvt7bFeGwxPp+Tzw3IoED8R2fPbgDQNKYHO8OacRwwcZrvt7rJeHAxQqOTzxHIoED8R2fPcgTQNKoLO8OedRwwcZ7zuelkdHQxRqOT0xXMpEUAS2vPcgTUOKoLO8OedSAwdaLzu';
@@ -140,31 +172,46 @@ export const DoodleJumpGame = ({
     if (player.velocityY > 0) {
       for (const platform of platformsRef.current) {
         if (
-          platform.broken ||
-          player.x + player.width > platform.x &&
-          player.x < platform.x + platform.width &&
+          !platform.broken &&
+          platform.isCorrect === null &&
+          player.x + player.width / 2 > platform.x &&
+          player.x + player.width / 2 < platform.x + platform.width &&
           player.y + player.height > platform.y &&
-          player.y + player.height < platform.y + PLATFORM_HEIGHT + 5 &&
+          player.y + player.height < platform.y + PLATFORM_HEIGHT + 10 &&
           player.velocityY > 0
         ) {
-          if (!platform.broken) {
-            player.velocityY = JUMP_VELOCITY;
+          player.velocityY = JUMP_VELOCITY;
+          
+          if (platform.phoneme === '') {
+            return;
+          }
+          
+          const isCorrect = platform.phoneme === correctPhoneme;
+          platform.isCorrect = isCorrect;
+          
+          if (isCorrect) {
+            if (successSoundRef.current) {
+              successSoundRef.current.currentTime = 0;
+              successSoundRef.current.play().catch(() => {});
+            }
+            setScore((prev) => prev + 10);
             
-            platform.isCorrect = platform.phoneme === correctPhoneme;
+            const otherPlatform = platformsRef.current.find(
+              (p) => p.y === platform.y && p !== platform
+            );
+            if (otherPlatform) {
+              otherPlatform.broken = true;
+            }
             
-            if (platform.isCorrect) {
-              if (successSoundRef.current) {
-                successSoundRef.current.currentTime = 0;
-                successSoundRef.current.play().catch(() => {});
-              }
-              setScore((prev) => prev + 10);
-              nextWord();
-            } else {
-              if (errorSoundRef.current) {
-                errorSoundRef.current.currentTime = 0;
-                errorSoundRef.current.play().catch(() => {});
-              }
-              platform.broken = true;
+            nextWord();
+          } else {
+            if (errorSoundRef.current) {
+              errorSoundRef.current.currentTime = 0;
+              errorSoundRef.current.play().catch(() => {});
+            }
+            platform.broken = true;
+            
+            setTimeout(() => {
               setLives((prev) => {
                 const newLives = prev - 1;
                 if (newLives <= 0) {
@@ -172,8 +219,14 @@ export const DoodleJumpGame = ({
                 }
                 return newLives;
               });
-            }
+              
+              player.y = CANVAS_HEIGHT - 200;
+              player.x = CANVAS_WIDTH / 2 - PLAYER_WIDTH / 2;
+              player.velocityY = 0;
+            }, 500);
           }
+          
+          break;
         }
       }
     }
@@ -182,9 +235,9 @@ export const DoodleJumpGame = ({
   const updatePlatforms = useCallback(() => {
     const player = playerRef.current;
     
-    if (player.y < CANVAS_HEIGHT / 3) {
-      const shift = CANVAS_HEIGHT / 3 - player.y;
-      player.y = CANVAS_HEIGHT / 3;
+    if (player.y < CANVAS_HEIGHT / 2.5) {
+      const shift = CANVAS_HEIGHT / 2.5 - player.y;
+      player.y = CANVAS_HEIGHT / 2.5;
       
       platformsRef.current = platformsRef.current.map((platform) => ({
         ...platform,
@@ -192,25 +245,20 @@ export const DoodleJumpGame = ({
       }));
       
       platformsRef.current = platformsRef.current.filter(
-        (platform) => platform.y < CANVAS_HEIGHT
+        (platform) => platform.y < CANVAS_HEIGHT + 100
       );
       
-      while (platformsRef.current.length < 7) {
-        const lastPlatform = platformsRef.current[0];
-        const newY = lastPlatform ? lastPlatform.y - 80 : -80;
-        const phoneme = Math.random() > 0.5 ? phoneme1 : phoneme2;
+      const topPlatforms = platformsRef.current.filter((p) => p.phoneme !== '');
+      if (topPlatforms.length > 0) {
+        const topY = Math.min(...topPlatforms.map((p) => p.y));
         
-        platformsRef.current.unshift({
-          x: Math.random() * (CANVAS_WIDTH - PLATFORM_WIDTH),
-          y: newY,
-          width: PLATFORM_WIDTH,
-          phoneme,
-          isCorrect: false,
-          broken: false,
-        });
+        if (topY > -PLATFORM_GAP) {
+          const newY = topY - PLATFORM_GAP;
+          platformsRef.current.push(...createPlatformPair(newY));
+        }
       }
     }
-  }, [phoneme1, phoneme2]);
+  }, [createPlatformPair]);
 
   const gameLoop = useCallback(() => {
     const canvas = canvasRef.current;
@@ -241,7 +289,8 @@ export const DoodleJumpGame = ({
         }
         return newLives;
       });
-      player.y = CANVAS_HEIGHT / 2;
+      player.y = CANVAS_HEIGHT - 200;
+      player.x = CANVAS_WIDTH / 2 - PLAYER_WIDTH / 2;
       player.velocityY = 0;
     }
 
@@ -250,15 +299,22 @@ export const DoodleJumpGame = ({
 
     ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
 
-    ctx.fillStyle = '#e0f2fe';
+    const gradient = ctx.createLinearGradient(0, 0, 0, CANVAS_HEIGHT);
+    gradient.addColorStop(0, '#87CEEB');
+    gradient.addColorStop(1, '#E0F6FF');
+    ctx.fillStyle = gradient;
     ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
 
     platformsRef.current.forEach((platform) => {
       if (platform.broken) {
         ctx.fillStyle = '#ef4444';
-        ctx.globalAlpha = 0.5;
-      } else if (platform.isCorrect) {
+        ctx.globalAlpha = 0.3;
+      } else if (platform.isCorrect === true) {
         ctx.fillStyle = '#22c55e';
+      } else if (platform.isCorrect === false) {
+        ctx.fillStyle = '#ef4444';
+      } else if (platform.phoneme === '') {
+        ctx.fillStyle = '#94a3b8';
       } else {
         ctx.fillStyle = '#f59e0b';
       }
@@ -266,17 +322,29 @@ export const DoodleJumpGame = ({
       ctx.fillRect(platform.x, platform.y, platform.width, PLATFORM_HEIGHT);
       ctx.globalAlpha = 1;
 
-      ctx.fillStyle = '#000';
-      ctx.font = 'bold 16px Arial';
-      ctx.textAlign = 'center';
-      ctx.fillText(
-        `[${platform.phoneme}]`,
-        platform.x + platform.width / 2,
-        platform.y - 5
-      );
+      if (platform.phoneme && !platform.broken) {
+        ctx.fillStyle = '#000';
+        ctx.font = 'bold 18px Arial';
+        ctx.textAlign = 'center';
+        ctx.fillText(
+          `[${platform.phoneme}]`,
+          platform.x + platform.width / 2,
+          platform.y - 8
+        );
+      }
     });
 
     if (crocoImageRef.current && crocoImageRef.current.complete) {
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(
+        player.x + player.width / 2,
+        player.y + player.height / 2,
+        player.width / 2,
+        0,
+        Math.PI * 2
+      );
+      ctx.clip();
       ctx.drawImage(
         crocoImageRef.current,
         player.x,
@@ -284,12 +352,21 @@ export const DoodleJumpGame = ({
         player.width,
         player.height
       );
+      ctx.restore();
     } else {
       ctx.fillStyle = '#22c55e';
-      ctx.fillRect(player.x, player.y, player.width, player.height);
-      ctx.font = 'bold 24px Arial';
+      ctx.beginPath();
+      ctx.arc(
+        player.x + player.width / 2,
+        player.y + player.height / 2,
+        player.width / 2,
+        0,
+        Math.PI * 2
+      );
+      ctx.fill();
+      ctx.font = 'bold 32px Arial';
       ctx.textAlign = 'center';
-      ctx.fillText('🐊', player.x + player.width / 2, player.y + player.height / 2 + 8);
+      ctx.fillText('🐊', player.x + player.width / 2, player.y + player.height / 2 + 10);
     }
 
     animationRef.current = requestAnimationFrame(gameLoop);
@@ -321,7 +398,7 @@ export const DoodleJumpGame = ({
         cancelAnimationFrame(animationRef.current);
       }
     };
-  }, [gameLoop]);
+  }, [gameLoop, musicEnabled]);
 
   useEffect(() => {
     if (gameOver) {
@@ -335,7 +412,7 @@ export const DoodleJumpGame = ({
   }, [gameOver, score, onComplete]);
 
   const handleReplay = () => {
-    speak(currentWord);
+    speak(currentWord, 0.9);
   };
 
   const toggleMusic = () => {
@@ -377,7 +454,7 @@ export const DoodleJumpGame = ({
         </div>
 
         <div className="mb-4 text-center">
-          <div className="text-sm text-gray-600 mb-2">Слушай слово и прыгай на нужный звук:</div>
+          <div className="text-sm text-gray-600 mb-2">Слушай слово и прыгай на правильный звук:</div>
           <Button onClick={handleReplay} variant="outline" size="lg" className="gap-2">
             <Icon name="Volume2" size={20} />
             Повторить слово

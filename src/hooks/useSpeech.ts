@@ -10,10 +10,17 @@ export const useSpeech = () => {
 
       const setRussianVoice = () => {
         const voices = synthRef.current?.getVoices() || [];
-        const russianVoice = voices.find((voice) =>
+        const russianVoices = voices.filter((voice) =>
           voice.lang.startsWith('ru')
         );
-        voiceRef.current = russianVoice || voices[0] || null;
+        
+        const preferredVoice = russianVoices.find(
+          (voice) => voice.name.includes('Google') || voice.name.includes('Yandex')
+        ) || russianVoices.find(
+          (voice) => voice.name.includes('Milena') || voice.name.includes('Irina')
+        ) || russianVoices[0];
+        
+        voiceRef.current = preferredVoice || voices[0] || null;
       };
 
       setRussianVoice();
