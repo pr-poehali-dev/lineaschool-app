@@ -369,11 +369,6 @@ export const DoodleJumpGame = ({
   }, [gameOver, checkCollision, updatePlatforms]);
 
   useEffect(() => {
-    if (!gameStartedRef.current) {
-      gameStartedRef.current = true;
-      gameLoop();
-    }
-
     const handleKeyDown = (e: KeyboardEvent) => {
       keysRef.current[e.key] = true;
     };
@@ -385,6 +380,11 @@ export const DoodleJumpGame = ({
     window.addEventListener('keydown', handleKeyDown);
     window.addEventListener('keyup', handleKeyUp);
 
+    if (!gameStartedRef.current) {
+      gameStartedRef.current = true;
+      gameLoop();
+    }
+
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('keyup', handleKeyUp);
@@ -392,7 +392,7 @@ export const DoodleJumpGame = ({
         cancelAnimationFrame(animationRef.current);
       }
     };
-  }, [gameLoop, musicEnabled]);
+  }, [gameLoop]);
 
   useEffect(() => {
     if (gameOver) {
