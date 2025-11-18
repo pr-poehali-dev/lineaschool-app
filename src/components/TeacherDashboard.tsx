@@ -105,22 +105,9 @@ const TeacherDashboard = ({
               </div>
             </Card>
 
-            <Card 
-              className="p-4 shadow-md border-0 bg-white hover:shadow-lg transition-all cursor-pointer"
-              onClick={() => navigate('/game/doodle-jump')}
-            >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-blue-500 rounded-lg flex items-center justify-center text-2xl">
-                    🐊
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-secondary">Прыжки по плиткам</h3>
-                    <p className="text-sm text-muted-foreground">Тренировка фонематического слуха</p>
-                  </div>
-                </div>
-                <Icon name="ChevronRight" size={20} className="text-muted-foreground" />
-              </div>
+            <Card className="p-8 text-center border-2 border-dashed border-gray-300 bg-gray-50">
+              <Icon name="Plus" size={32} className="mx-auto mb-2 text-gray-400" />
+              <p className="text-sm text-muted-foreground">Скоро появятся новые игры</p>
             </Card>
           </div>
         )}

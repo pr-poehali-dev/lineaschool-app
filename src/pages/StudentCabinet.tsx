@@ -241,16 +241,6 @@ const StudentCabinet = () => {
         </div>
 
         <div className="p-4">
-          <Button
-            onClick={() => navigate('/game/doodle-jump')}
-            className="w-full bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 text-white font-bold py-6 text-lg"
-          >
-            <span className="mr-2">🐊</span>
-            Крокодил-прыгун
-          </Button>
-        </div>
-
-        <div className="p-4">
           <div className="mb-4 flex items-center justify-between">
             <h2 className="text-lg font-semibold capitalize">{monthName}</h2>
             <div className="flex gap-1">
