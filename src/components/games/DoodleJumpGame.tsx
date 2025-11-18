@@ -156,10 +156,6 @@ export const DoodleJumpGame = ({
     errorSound.src = 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAIlYAAESsAAACABAAZGF0YQAAAAA=';
     errorSound.volume = 0.4;
     errorSoundRef.current = errorSound;
-    
-    return () => {
-      audio.pause();
-    };
   }, [initPlatforms, nextWord]);
 
   const checkCollision = useCallback(() => {
@@ -169,7 +165,6 @@ export const DoodleJumpGame = ({
       for (const platform of platformsRef.current) {
         if (
           !platform.broken &&
-          platform.isCorrect === null &&
           player.x + player.width / 2 > platform.x &&
           player.x + player.width / 2 < platform.x + platform.width &&
           player.y + player.height > platform.y &&
@@ -178,8 +173,8 @@ export const DoodleJumpGame = ({
         ) {
           player.velocityY = JUMP_VELOCITY;
           
-          if (platform.phoneme === '') {
-            return;
+          if (platform.phoneme === '' || platform.isCorrect !== null) {
+            continue;
           }
           
           const isCorrect = platform.phoneme === correctPhoneme;
